@@ -1,1911 +1,689 @@
 <!DOCTYPE html>
-<html lang="es" id="html-root">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BrainMemora — Convierte lo que lees en conocimiento que no se borra</title>
-  <meta name="description" content="Extensión de Chrome que transforma tu lectura pasiva en aprendizaje activo usando las técnicas con mayor respaldo científico: práctica de recuperación, Feynman, repetición espaciada y más." />
-  <meta name="author" content="Keyner Tatis" />
-  <!-- Open Graph -->
-  <meta property="og:title" content="BrainMemora — Aprende más, olvida menos" />
-  <meta property="og:description" content="La extensión de Chrome que aplica la ciencia del aprendizaje a tu forma de estudiar." />
-  <meta property="og:type" content="website" />
-  <!-- Fonts: Newsreader (serif editorial/académico) + Space Grotesk (técnico) -->
+  <title>BrainMemora — Viaja por la ciencia de recordar</title>
+  <meta id="meta-desc" name="description" content="Una extensión de Chrome que convierte tu lectura pasiva en aprendizaje activo, basada en la evidencia: recuperación, repetición espaciada y Feynman. Para navegadores de escritorio." />
+  <meta property="og:title" content="BrainMemora — Deja de subrayar. Empieza a recordar." />
+  <meta property="og:description" content="Viaja por una red neuronal viva. La extensión que aplica la ciencia del aprendizaje a tu estudio." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      /* — Base oscura premium — */
-      --bg:        #08080C;
-      --bg-soft:   #0D0D14;
-      --bg-card:   rgba(255,255,255,.025);
-      --bg-card-h: rgba(255,255,255,.045);
-      --line:      rgba(255,255,255,.09);
-      --line-mid:  rgba(255,255,255,.16);
-
-      /* — Texto — */
-      --text:      #F3F2F7;
-      --text-soft: #A6A4B4;
-      --text-mute: #6E6C7E;
-
-      /* — Acento (violeta de marca, refinado) — */
-      --v:         #8B5CF6;
-      --v-light:   #B79CFF;
-      --v-glow:    rgba(139,92,246,.20);
-      --v-faint:   rgba(139,92,246,.10);
-
-      /* — Apoyo — */
-      --green:     #34D399;
-      --amber:     #F0B86E;
-
-      --radius:    16px;
-      --radius-sm: 11px;
-      --serif: 'Newsreader', Georgia, 'Times New Roman', serif;
-      --sans:  'Space Grotesk', system-ui, sans-serif;
+      --bg: #08080C; --bg-soft: #0D0D14;
+      --text: #F3F2F7; --text-soft: #A6A4B4; --text-mute: #6E6C7E;
+      --v: #8B5CF6; --v-light: #B79CFF; --v-glow: rgba(139,92,246,.22); --v-faint: rgba(139,92,246,.10);
+      --green: #34D399; --line: rgba(255,255,255,.10);
+      --serif: 'Newsreader', Georgia, serif;
+      --sans: 'Space Grotesk', system-ui, sans-serif;
     }
-
     html { scroll-behavior: smooth; }
-
     body {
-      font-family: var(--sans);
-      color: var(--text);
-      background: var(--bg);
-      font-size: 16px;
-      line-height: 1.65;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
+      font-family: var(--sans); color: var(--text); background: var(--bg);
+      line-height: 1.65; overflow-x: hidden; -webkit-font-smoothing: antialiased;
     }
-
-    /* Etiqueta de sección — small caps técnico */
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--v-light);
-      margin-bottom: 18px;
+    #mundo {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(1000px 680px at 74% 8%, rgba(139,92,246,.05), transparent 62%),
+        var(--bg);
     }
-    .eyebrow::before {
-      content: '';
-      width: 22px; height: 1px;
-      background: var(--v);
-      opacity: .7;
+    #mundo canvas { display: block; }
+    #vineta {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background: radial-gradient(135% 135% at 50% 36%, transparent 40%, rgba(8,8,12,.82) 100%);
     }
+    .capa { position: relative; z-index: 2; }
 
-    /* Titulares — serif editorial */
-    h1, h2, .display { font-family: var(--serif); font-weight: 400; letter-spacing: -.4px; }
-
-    /* ─── NAV ─────────────────────────────────────────────────── */
+    /* ---------- Navegación ---------- */
     nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      background: rgba(8,8,12,.72);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--line);
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 28px;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px clamp(20px, 5vw, 56px);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      transition: background .3s ease, border-color .3s ease;
+      border-bottom: 1px solid transparent;
     }
-    .nav-logo {
-      display: flex; align-items: center; gap: 10px;
-      text-decoration: none;
-      font-family: var(--sans);
-      font-weight: 600;
-      font-size: 18px;
-      color: var(--text);
-      letter-spacing: -.3px;
-    }
-    .nav-logo .mark {
-      width: 26px; height: 26px;
-      border-radius: 7px;
-      background: linear-gradient(150deg, var(--v) 0%, #6D28D9 100%);
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 18px var(--v-glow);
-    }
-    .nav-logo .mark svg { width: 15px; height: 15px; }
+    nav.flotando { background: rgba(8,8,12,.7); border-bottom-color: var(--line); }
+    .marca { display: flex; align-items: center; gap: 11px; text-decoration: none; color: var(--text); }
+    .marca svg { width: 30px; height: 30px; color: var(--v-light); }
+    .marca b { font-family: var(--serif); font-weight: 500; font-size: 19px; letter-spacing: .2px; }
+    .nav-derecha { display: flex; align-items: center; gap: 14px; }
     .nav-cta {
-      background: var(--text);
-      color: #0A0A0F;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 14px;
-      padding: 9px 18px;
-      border-radius: 9px;
-      transition: transform .15s, box-shadow .2s;
+      font-family: var(--sans); font-weight: 600; font-size: 14px; text-decoration: none;
+      color: #0A0A0F; background: var(--v-light); padding: 10px 18px; border-radius: 10px;
+      transition: transform .15s ease, box-shadow .25s ease;
     }
-    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(255,255,255,.12); }
+    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 24px var(--v-glow); }
 
-    /* ─── HERO ────────────────────────────────────────────────── */
-    .hero {
-      position: relative;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 140px 24px 90px;
-      overflow: hidden;
-    }
-    /* Halo de luz sutil — no gradiente agresivo */
-    .hero::before {
-      content: '';
-      position: absolute;
-      width: 900px; height: 900px;
-      top: -380px; left: 50%;
-      transform: translateX(-50%);
-      background: radial-gradient(circle, var(--v-glow) 0%, transparent 62%);
-      pointer-events: none;
-    }
-    /* Rejilla técnica tenue de fondo */
-    .hero::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(var(--line) 1px, transparent 1px),
-        linear-gradient(90deg, var(--line) 1px, transparent 1px);
-      background-size: 64px 64px;
-      mask-image: radial-gradient(ellipse 70% 55% at 50% 38%, #000 0%, transparent 75%);
-      -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 38%, #000 0%, transparent 75%);
-      opacity: .5;
-      pointer-events: none;
-    }
-    .hero > * { position: relative; z-index: 1; }
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      background: var(--bg-card);
-      border: 1px solid var(--line-mid);
-      border-radius: 100px;
-      padding: 7px 16px 7px 13px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-soft);
-      margin-bottom: 34px;
-    }
-    .hero-badge .dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 10px var(--green);
-    }
-    .hero h1 {
-      font-size: clamp(38px, 6.4vw, 74px);
-      line-height: 1.05;
-      letter-spacing: -1.8px;
-      color: var(--text);
-      max-width: 880px;
-      margin: 0 auto 26px;
-    }
-    .hero h1 em {
-      font-style: italic;
-      color: var(--v-light);
-    }
-    .hero-sub {
-      font-family: var(--sans);
-      font-size: clamp(16px, 2vw, 19px);
-      color: var(--text-soft);
-      max-width: 600px;
-      margin: 0 auto 42px;
-      line-height: 1.6;
-    }
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      justify-content: center;
-      margin-bottom: 56px;
-    }
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      background: var(--text);
-      color: #0A0A0F;
-      font-family: var(--sans);
-      font-weight: 600;
-      font-size: 15px;
-      padding: 15px 28px;
-      border-radius: 12px;
-      text-decoration: none;
-      transition: transform .2s, box-shadow .2s;
-      box-shadow: 0 8px 30px rgba(0,0,0,.4);
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(183,156,255,.28); }
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      background: var(--bg-card);
-      color: var(--text);
-      font-family: var(--sans);
-      font-weight: 500;
-      font-size: 15px;
-      padding: 15px 26px;
-      border-radius: 12px;
-      text-decoration: none;
-      border: 1px solid var(--line-mid);
-      transition: background .2s, border-color .2s;
-    }
-    .btn-secondary:hover { background: var(--bg-card-h); border-color: var(--text-mute); }
-
-    .hero-proof {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 14px 28px;
-      color: var(--text-mute);
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .hero-proof .pf { display: flex; align-items: center; gap: 8px; }
-    .hero-proof .pf strong { color: var(--text-soft); font-weight: 600; }
-    .hero-proof .num { font-family: var(--serif); color: var(--v-light); font-size: 16px; }
-
-    /* ─── LANG SELECTOR ─────────────────────────────────────── */
-    .lang-selector {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
+    /* ---------- Selector de idioma ---------- */
+    .lang-sel { display: flex; gap: 1px; align-items: center; }
     .lang-btn {
-      background: transparent;
-      border: 1px solid var(--line);
-      color: var(--text-mute);
-      font-size: 12px;
-      font-weight: 500;
-      padding: 5px 11px;
-      border-radius: 7px;
-      cursor: pointer;
-      transition: all .18s;
-      font-family: var(--sans);
+      background: none; border: none; cursor: pointer;
+      font-family: var(--sans); font-size: 11.5px; font-weight: 600;
+      color: var(--text-mute); padding: 5px 8px; border-radius: 6px;
+      transition: color .15s, background .15s; letter-spacing: .4px;
     }
-    .lang-btn:hover { color: var(--text); border-color: var(--line-mid); }
-    .lang-btn.active { background: var(--v-faint); color: var(--v-light); border-color: var(--v); }
+    .lang-btn:hover { color: var(--text); background: rgba(255,255,255,.06); }
+    .lang-btn.activo { color: var(--v-light); }
+    @media (max-width: 500px) { .lang-sel { display: none; } }
 
-    /* ─── SECTIONS ──────────────────────────────────────────── */
-    section { padding: 96px 24px; }
-    .container { max-width: 1120px; margin: 0 auto; }
-    .narrow { max-width: 760px; }
+    /* ---------- CTA pegajoso ---------- */
+    #sticky {
+      position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 140%);
+      z-index: 25; transition: transform .4s cubic-bezier(.2,.8,.2,1);
+      display: flex; align-items: center; gap: 14px;
+      background: rgba(13,13,20,.86); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px 10px 18px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.45);
+    }
+    #sticky.visible { transform: translate(-50%, 0); }
+    #sticky span { font-size: 13.5px; color: var(--text-soft); }
+    #sticky a {
+      font-weight: 600; font-size: 14px; text-decoration: none; color: #0A0A0F;
+      background: var(--v-light); padding: 9px 16px; border-radius: 10px; white-space: nowrap;
+    }
+    @media (max-width: 600px) { #sticky span { display: none; } }
 
-    h2.section-title {
-      font-size: clamp(30px, 4.4vw, 50px);
-      line-height: 1.12;
-      letter-spacing: -1.2px;
-      color: var(--text);
-      margin-bottom: 18px;
+    /* ---------- Estructura de las "estaciones" ---------- */
+    main { position: relative; z-index: 2; }
+    .estacion {
+      min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+      padding: 12vh clamp(22px, 7vw, 90px); max-width: 1000px;
     }
-    h2.section-title em { font-style: italic; color: var(--v-light); }
-    .section-sub {
-      font-size: 17px;
-      color: var(--text-soft);
-      max-width: 580px;
-      line-height: 1.6;
+    .estacion.derecha { margin-left: auto; align-items: flex-start; text-align: left; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 9px; font-size: 12px; font-weight: 600;
+      letter-spacing: 2.6px; text-transform: uppercase; color: var(--v-light); margin-bottom: 22px;
     }
-    .section-header { margin-bottom: 56px; }
-    .section-header.center { text-align: center; }
-    .section-header.center .section-sub { margin-left: auto; margin-right: auto; }
-    .section-header.center .eyebrow { display: flex; justify-content: center; margin-left: auto; margin-right: auto; }
+    .eyebrow::before { content: ''; width: 26px; height: 1px; background: var(--v-light); opacity: .7; }
+    h1 {
+      font-family: var(--serif); font-weight: 500; line-height: 1.02;
+      font-size: clamp(46px, 9vw, 120px); letter-spacing: -1.5px; margin-bottom: 26px;
+    }
+    h1 i { font-style: italic; color: var(--v-light); }
+    h2 {
+      font-family: var(--serif); font-weight: 500; line-height: 1.05;
+      font-size: clamp(34px, 6vw, 76px); letter-spacing: -1px; margin-bottom: 22px; max-width: 14ch;
+    }
+    h2 i { font-style: italic; color: var(--v-light); }
+    .sub { font-size: clamp(16px, 2vw, 21px); color: var(--text-soft); max-width: 56ch; margin-bottom: 34px; }
+    .micro { font-size: 13.5px; color: var(--text-mute); margin-top: 30px; letter-spacing: .3px; }
+    .micro b { color: var(--text-soft); font-weight: 500; }
 
-    /* Separador entre bloques */
-    .divider { height: 1px; background: var(--line); max-width: 1120px; margin: 0 auto; }
+    /* ---------- Botones ---------- */
+    .acciones { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+    .btn-1 {
+      font-family: var(--sans); font-weight: 600; font-size: 16px; text-decoration: none;
+      color: #0A0A0F; background: linear-gradient(180deg, #C8B3FF, var(--v)); padding: 15px 28px;
+      border-radius: 13px; box-shadow: 0 10px 30px var(--v-glow);
+      transition: transform .15s ease, box-shadow .25s ease;
+    }
+    .btn-1:hover { transform: translateY(-2px); box-shadow: 0 16px 44px var(--v-glow); }
+    .btn-2 {
+      font-family: var(--sans); font-weight: 500; font-size: 15px; text-decoration: none;
+      color: var(--text); padding: 15px 24px; border-radius: 13px; border: 1px solid var(--line);
+      transition: border-color .2s ease, background .2s ease;
+    }
+    .btn-2:hover { border-color: var(--v-light); background: var(--v-faint); }
 
-    /* ─── PROBLEMA ──────────────────────────────────────────── */
-    .problem-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 18px;
+    /* ---------- Pilares ---------- */
+    .pilares { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 48px; width: 100%; }
+    .pilar {
+      position: relative; overflow: hidden;
+      border: 1px solid var(--line); border-radius: 18px; padding: 34px 26px 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.012));
+      transition: transform .4s cubic-bezier(.2,.8,.2,1), border-color .4s ease, box-shadow .4s ease;
     }
-    .problem-card {
-      background: var(--bg-card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 30px 28px;
+    .pilar::before {
+      content: attr(data-n); position: absolute; top: -26px; right: 8px;
+      font-family: var(--serif); font-weight: 500; font-size: 128px; line-height: 1;
+      color: rgba(139,92,246,.11); pointer-events: none;
     }
-    .problem-card .tag {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--amber);
-      margin-bottom: 14px;
-      display: block;
+    .pilar:hover {
+      transform: translateY(-10px); border-color: var(--v-light);
+      box-shadow: 0 28px 70px rgba(139,92,246,.18);
     }
-    .problem-card h3 {
-      font-family: var(--sans);
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 9px;
+    .pilar-tag { position: relative; font-size: 11px; letter-spacing: 2.4px; text-transform: uppercase; font-weight: 600; color: var(--v-light); }
+    .pilar h3 { position: relative; font-family: var(--serif); font-weight: 500; font-size: clamp(23px, 2.4vw, 30px); line-height: 1.12; margin: 12px 0 14px; }
+    .pilar p { position: relative; font-size: 14.5px; color: var(--text-soft); }
+    .pilar .promesa {
+      position: relative; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line);
+      font-size: 13.5px; font-weight: 500; color: var(--v-light); display: flex; gap: 9px; align-items: flex-start;
     }
-    .problem-card p { font-size: 14.5px; color: var(--text-soft); line-height: 1.6; margin: 0; }
+    .pilar .promesa::before { content: '✦'; flex-shrink: 0; }
+    @media (max-width: 760px) { .pilares { grid-template-columns: 1fr; } }
 
-    .problem-solution {
-      position: relative;
-      background: linear-gradient(160deg, rgba(139,92,246,.10) 0%, rgba(139,92,246,.02) 100%);
-      border: 1px solid var(--v);
-      border-radius: var(--radius);
-      padding: 44px 44px;
-      text-align: center;
-      margin-top: 22px;
-      overflow: hidden;
-    }
-    .problem-solution::before {
-      content: '';
-      position: absolute;
-      width: 380px; height: 380px;
-      top: -200px; left: 50%; transform: translateX(-50%);
-      background: radial-gradient(circle, var(--v-glow) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .problem-solution h3 {
-      position: relative;
-      font-family: var(--serif);
-      font-size: clamp(22px, 3vw, 30px);
-      font-weight: 400;
-      letter-spacing: -.5px;
-      color: var(--text);
-      margin-bottom: 12px;
-    }
-    .problem-solution h3 em { font-style: italic; color: var(--v-light); }
-    .problem-solution p {
-      position: relative;
-      color: var(--text-soft);
-      font-size: 16px;
-      max-width: 620px;
-      margin: 0 auto;
-    }
+    /* ---------- Revelar al scroll ---------- */
+    .revelar { opacity: 0; transform: translateY(34px); transition: opacity 1s ease, transform 1s ease; }
+    .revelar.visible { opacity: 1; transform: none; }
+    .d1 { transition-delay: .12s; } .d2 { transition-delay: .24s; } .d3 { transition-delay: .36s; }
 
-    /* ─── PASOS ──────────────────────────────────────────────── */
-    .steps-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-      gap: 20px;
-    }
-    .step-card {
-      background: var(--bg-card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 34px 30px;
-      transition: border-color .2s, background .2s;
-    }
-    .step-card:hover { border-color: var(--line-mid); background: var(--bg-card-h); }
-    .step-num {
-      font-family: var(--serif);
-      font-size: 34px;
-      color: var(--v-light);
-      line-height: 1;
-      margin-bottom: 22px;
-      display: block;
-    }
-    .step-card h3 {
-      font-family: var(--sans);
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 11px;
-    }
-    .step-card p { font-size: 14.5px; color: var(--text-soft); line-height: 1.65; margin: 0; }
-
-    /* ─── PILARES ────────────────────────────────────────────── */
-    .pillar-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 18px;
-    }
-    .pillar-card {
-      background: var(--bg-card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 32px 30px;
-      transition: border-color .2s, transform .2s;
-    }
-    .pillar-card:hover { border-color: var(--line-mid); transform: translateY(-3px); }
-    .pillar-header {
-      display: flex;
-      align-items: baseline;
-      gap: 14px;
-      margin-bottom: 16px;
-    }
-    .pillar-num {
-      font-family: var(--serif);
-      font-size: 24px;
-      color: var(--v-light);
-      line-height: 1;
-      flex-shrink: 0;
-      min-width: 24px;
-    }
-    .pillar-card h3 {
-      font-family: var(--sans);
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 2px;
-    }
-    .pillar-sub { font-size: 12.5px; color: var(--text-mute); font-weight: 500; }
-    .pillar-badge {
-      display: inline-block;
-      font-size: 11.5px;
-      font-weight: 600;
-      letter-spacing: .3px;
-      padding: 4px 11px;
-      border-radius: 100px;
-      background: var(--v-faint);
-      color: var(--v-light);
-      border: 1px solid rgba(139,92,246,.25);
-      margin-bottom: 14px;
-    }
-    .pillar-card p { font-size: 14.5px; color: var(--text-soft); line-height: 1.65; margin: 0 0 12px; }
-    .pillar-cite { font-size: 11.5px; color: var(--text-mute); font-style: italic; }
-
-    .pillar-meta {
-      grid-column: 1 / -1;
-      background: linear-gradient(150deg, rgba(139,92,246,.12) 0%, rgba(139,92,246,.03) 100%);
-      border-color: var(--v);
-    }
-    .pillar-meta .pillar-num,
-    .pillar-meta h3 { color: var(--text); }
-    .pillar-meta .pillar-num { color: var(--v-light); }
-
-    /* ─── CIENCIA (banda destacada) ─────────────────────────── */
-    .science {
-      background: var(--bg-soft);
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-    }
-    .evidence-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 0;
-      margin-top: 52px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-    .evidence-card {
-      padding: 36px 28px;
-      text-align: center;
-      border-right: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-    }
-    .evidence-number {
-      font-family: var(--serif);
-      font-size: 50px;
-      font-weight: 400;
-      color: var(--v-light);
-      line-height: 1;
-      margin-bottom: 12px;
-      letter-spacing: -1px;
-    }
-    .evidence-label { font-size: 13px; color: var(--text-soft); line-height: 1.5; }
-
-    .quote-block {
-      background: var(--bg-card);
-      border: 1px solid var(--line);
-      border-left: 2px solid var(--v);
-      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-      padding: 30px 34px;
-      margin-top: 44px;
-      font-family: var(--serif);
-      font-size: 19px;
-      font-style: italic;
-      color: var(--text);
-      line-height: 1.6;
-    }
-    .quote-block cite {
-      display: block;
-      margin-top: 16px;
-      font-family: var(--sans);
-      font-style: normal;
-      font-size: 12.5px;
-      font-weight: 500;
-      color: var(--text-mute);
-    }
-
-    /* ─── AUDIENCIA ─────────────────────────────────────────── */
-    .audience-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 18px;
-    }
-    .audience-card {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 30px 26px;
-      background: var(--bg-card);
-      transition: border-color .2s;
-    }
-    .audience-card:hover { border-color: var(--line-mid); }
-    .audience-card .idx {
-      font-family: var(--serif);
-      font-size: 15px;
-      color: var(--v-light);
-      letter-spacing: 1px;
-      display: block;
-      margin-bottom: 16px;
-    }
-    .audience-card h3 {
-      font-family: var(--sans);
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-    .audience-card p { font-size: 14px; color: var(--text-soft); margin: 0; line-height: 1.55; }
-
-    .audience-note {
-      margin-top: 28px;
-      padding: 26px 30px;
-      border: 1px dashed var(--line-mid);
-      border-radius: var(--radius);
-      text-align: center;
-      color: var(--text-soft);
-      font-size: 15.5px;
-      line-height: 1.65;
-    }
-    .audience-note strong { color: var(--text); font-weight: 600; }
-
-    /* ─── TRUST BAR ──────────────────────────────────────────── */
-    .trust-bar {
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-      padding: 26px 24px;
-      background: var(--bg-soft);
-    }
-    .trust-inner {
-      max-width: 1000px;
-      margin: 0 auto;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 18px 36px;
-    }
-    .trust-item {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--text-soft);
-    }
-    .trust-item svg { width: 16px; height: 16px; color: var(--green); flex-shrink: 0; }
-
-    /* ─── PRECIOS ───────────────────────────────────────────── */
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-      gap: 20px;
-      max-width: 720px;
-      margin: 0 auto;
-    }
-    .pricing-card {
-      background: var(--bg-card);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 38px 34px;
-    }
-    .pricing-card.featured {
-      border-color: var(--v);
-      background: linear-gradient(165deg, rgba(139,92,246,.08) 0%, rgba(139,92,246,.015) 100%);
-      position: relative;
-    }
-    .featured-tag {
-      position: absolute;
-      top: -13px; left: 50%; transform: translateX(-50%);
-      background: var(--v);
-      color: #0A0A0F;
-      font-size: 11.5px;
-      font-weight: 700;
-      letter-spacing: .5px;
-      padding: 5px 16px;
-      border-radius: 100px;
-      white-space: nowrap;
-    }
-    .plan-name {
-      font-size: 12.5px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--text-mute);
-      margin-bottom: 14px;
-    }
-    .plan-price {
-      font-family: var(--serif);
-      font-size: 52px;
-      font-weight: 400;
-      color: var(--text);
-      letter-spacing: -1.5px;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-    .plan-price sup { font-size: 22px; vertical-align: super; margin-right: 2px; color: var(--text-soft); }
-    .plan-price small { font-family: var(--sans); font-size: 16px; color: var(--text-mute); }
-    .plan-desc { font-size: 14px; color: var(--text-soft); margin-bottom: 30px; line-height: 1.5; min-height: 42px; }
-    .plan-cta {
-      display: block;
-      text-align: center;
-      padding: 13px;
-      border-radius: 11px;
-      font-size: 15px;
-      font-weight: 600;
-      text-decoration: none;
-      margin-bottom: 30px;
-      transition: transform .15s, background .2s, border-color .2s;
-    }
-    .plan-cta:hover { transform: translateY(-1px); }
-    .plan-cta.solid { background: var(--text); color: #0A0A0F; }
-    .plan-cta.outline { background: transparent; border: 1px solid var(--line-mid); color: var(--text); }
-    .plan-cta.outline:hover { border-color: var(--v); color: var(--v-light); }
-    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-    .plan-features li {
-      display: flex;
-      align-items: flex-start;
-      gap: 11px;
-      font-size: 14px;
-      color: var(--text-soft);
-    }
-    .plan-features svg { width: 15px; height: 15px; margin-top: 3px; flex-shrink: 0; }
-    .check { color: var(--green); }
-    .cross { color: var(--text-mute); }
-
-    /* ─── FAQ ───────────────────────────────────────────────── */
-    .faq-list { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
-    .faq-item {
-      background: var(--bg-card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      transition: border-color .2s;
-    }
-    .faq-item.open { border-color: var(--line-mid); }
-    .faq-q {
-      width: 100%;
-      background: none;
-      border: none;
-      cursor: pointer;
-      text-align: left;
-      padding: 22px 26px;
-      font-size: 15.5px;
-      font-weight: 500;
-      color: var(--text);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      font-family: var(--sans);
-    }
-    .faq-q::after {
-      content: '+';
-      font-size: 22px;
-      font-weight: 400;
-      color: var(--v-light);
-      line-height: 1;
-      flex-shrink: 0;
-      transition: transform .25s;
-    }
-    .faq-item.open .faq-q::after { transform: rotate(45deg); }
-    .faq-a {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height .3s ease, padding .3s;
-      font-size: 14.5px;
-      color: var(--text-soft);
-      line-height: 1.7;
-      padding: 0 26px;
-    }
-    .faq-item.open .faq-a { max-height: 340px; padding: 0 26px 22px; }
-
-    /* ─── FINAL CTA ─────────────────────────────────────────── */
-    .final-cta {
-      position: relative;
-      text-align: center;
-      padding: 120px 24px;
-      overflow: hidden;
-    }
-    .final-cta::before {
-      content: '';
-      position: absolute;
-      width: 800px; height: 600px;
-      bottom: -300px; left: 50%; transform: translateX(-50%);
-      background: radial-gradient(circle, var(--v-glow) 0%, transparent 65%);
-      pointer-events: none;
-    }
-    .final-cta > * { position: relative; z-index: 1; }
-    .final-cta h2 {
-      font-family: var(--serif);
-      font-weight: 400;
-      font-size: clamp(32px, 5.4vw, 56px);
-      line-height: 1.1;
-      letter-spacing: -1.4px;
-      color: var(--text);
-      margin-bottom: 18px;
-    }
-    .final-cta h2 em { font-style: italic; color: var(--v-light); }
-    .final-cta p {
-      color: var(--text-soft);
-      font-size: 18px;
-      margin: 0 auto 38px;
-      max-width: 520px;
-    }
-    .final-cta .btn-primary { font-size: 16px; padding: 17px 34px; }
-
-    /* ─── FOOTER ───────────────────────────────────────────── */
+    /* ---------- Pie ---------- */
     footer {
-      background: var(--bg);
-      border-top: 1px solid var(--line);
-      color: var(--text-mute);
-      padding: 56px 24px 36px;
+      position: relative; z-index: 2; text-align: center; padding: 80px 24px 56px;
+      border-top: 1px solid var(--line); background: linear-gradient(180deg, transparent, rgba(8,8,12,.6));
     }
-    .footer-inner { max-width: 1000px; margin: 0 auto; }
-    .footer-top {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 36px;
-      padding-bottom: 40px;
-      border-bottom: 1px solid var(--line);
-      margin-bottom: 30px;
-    }
-    .footer-brand .logo-text {
-      font-size: 19px;
-      font-weight: 600;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      margin-bottom: 12px;
-    }
-    .footer-brand .logo-text .mark {
-      width: 24px; height: 24px; border-radius: 6px;
-      background: linear-gradient(150deg, var(--v) 0%, #6D28D9 100%);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .footer-brand .logo-text .mark svg { width: 14px; height: 14px; }
-    .footer-brand p { font-size: 13.5px; line-height: 1.65; max-width: 300px; }
-    .footer-col h4 {
-      font-size: 11.5px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--text-soft);
-      margin-bottom: 16px;
-    }
-    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-    .footer-col a { color: var(--text-mute); text-decoration: none; font-size: 14px; transition: color .2s; }
-    .footer-col a:hover { color: var(--text); }
-    .footer-bottom {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      font-size: 12.5px;
-    }
-    .footer-bottom a { color: var(--text-mute); text-decoration: none; }
-
-    /* ─── MOBILE STICKY CTA ─────────────────────────────────── */
-    .mobile-cta {
-      display: none;
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: rgba(8,8,12,.92);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-top: 1px solid var(--line);
-      padding: 12px 16px;
-      z-index: 200;
-    }
-    .mobile-cta a {
-      display: block;
-      background: var(--text);
-      color: #0A0A0F;
-      text-align: center;
-      font-weight: 600;
-      font-size: 15px;
-      padding: 13px;
-      border-radius: 11px;
-      text-decoration: none;
+    footer .marca { justify-content: center; margin-bottom: 18px; }
+    footer p { color: var(--text-mute); font-size: 13px; margin: 6px 0; }
+    footer a { color: var(--text-soft); text-decoration: none; border-bottom: 1px solid var(--line); }
+    footer a:hover { color: var(--v-light); }
+    .desktop-nota {
+      display: inline-block; margin-top: 16px; font-size: 12.5px; color: var(--text-mute);
+      border: 1px solid var(--line); border-radius: 999px; padding: 7px 16px;
     }
 
-    /* ─── RESPONSIVE ─────────────────────────────────────────── */
-    @media (max-width: 760px) {
-      .evidence-card { border-right: none; }
-    }
-    @media (max-width: 640px) {
-      section { padding: 68px 20px; }
-      .hero { padding: 116px 20px 70px; }
-      .hero-proof { flex-direction: column; gap: 12px; }
-      .mobile-cta { display: block; }
-      body { padding-bottom: 70px; }
-      .footer-top { flex-direction: column; }
-      .quote-block { font-size: 17px; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .revelar { opacity: 1; transform: none; transition: none; }
     }
   </style>
 </head>
 <body>
+  <div id="mundo"></div>
+  <div id="vineta"></div>
 
-<!-- ═══════════════════════ NAV ═══════════════════════════════ -->
-<nav>
-  <a href="#" class="nav-logo">
-    <span class="mark">
-      <svg viewBox="0 0 48 48" fill="#fff"><path fill-rule="evenodd" clip-rule="evenodd" d="M14.5 20.4C12 20.4 10.6 18.5 11.2 16.5C9.8 15 10.2 12.3 12.1 11.5C11.8 9.4 13.5 7.8 15.6 8.1C16.1 6.4 18.4 5.8 20 6.9C20.9 5.7 23 5.8 24 7.1C25 5.8 27.1 5.7 28 6.9C29.6 5.8 31.9 6.4 32.4 8.1C34.5 7.8 36.2 9.4 35.9 11.5C37.8 12.3 38.2 15 36.8 16.5C37.4 18.5 36 20.4 33.5 20.4C30 21.9 27 22.1 24 21.3C21 22.1 18 21.9 14.5 20.4ZM24 8.6C23.3 11 23.3 16 24 19C24.7 16 24.7 11 24 8.6ZM16.6 11C18.5 11.8 19.5 13.6 19.1 15.8C18.5 13.8 17.3 12.4 15.9 11.8C16 11.4 16.3 11.1 16.6 11ZM31.4 11C29.5 11.8 28.5 13.6 28.9 15.8C29.5 13.8 30.7 12.4 32.1 11.8C32 11.4 31.7 11.1 31.4 11Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M24 29.6C18 26.6 11.5 25.6 7 26.6C6.4 26.7 6.2 27.1 6.4 27.7C8 31.6 8.6 33.6 9 35.5C9.1 36.1 9.8 36.4 10.4 36.1C14.5 34.1 19.6 34.3 24 36.3C28.4 34.3 33.5 34.1 37.6 36.1C38.2 36.4 38.9 36.1 39 35.5C39.4 33.6 40 31.6 41.6 27.7C41.8 27.1 41.6 26.7 41 26.6C36.5 25.6 30 26.6 24 29.6ZM24 31C23.4 33 23.4 34.4 24 35.8C24.6 34.4 24.6 33 24 31ZM11.6 29.9C14.6 29.1 18 29 21 29.7C18 29.5 14.6 29.7 11.8 30.6ZM12.7 32.7C15.3 32 18 31.9 20.6 32.5C18 32.3 15.3 32.5 12.9 33.3ZM36.4 29.9C33.4 29.1 30 29 27 29.7C30 29.5 33.4 29.7 36.2 30.6ZM35.3 32.7C32.7 32 30 31.9 27.4 32.5C30 32.3 32.7 32.5 35.1 33.3Z"/></svg>
-    </span>
-    BrainMemora
-  </a>
-  <a href="https://chromewebstore.google.com" class="nav-cta" target="_blank" rel="noopener" data-i18n="nav_cta">
-    Instalar gratis →
-  </a>
-</nav>
-
-<!-- ═══════════════════════ HERO ══════════════════════════════ -->
-<section class="hero">
-  <div class="hero-badge">
-    <span class="dot"></span>
-    <span data-i18n="hero_badge">Aprendizaje respaldado por miles de estudios reales</span>
-  </div>
-  <h1 data-i18n-html="hero_h1">Convierte lo que lees en<br /><em>conocimiento que no se borra</em></h1>
-  <p class="hero-sub" data-i18n="hero_sub">
-    No es otro chat para tus PDFs. BrainMemora te hace estudiar de la forma que la ciencia
-    comprobó que funciona — la misma que casi nadie usa porque cuesta más que subrayar.
-  </p>
-  <div class="hero-actions">
-    <a href="https://chromewebstore.google.com" class="btn-primary" target="_blank" rel="noopener" data-i18n="hero_btn1">
-      Instalar en Chrome — es gratis
+  <nav id="nav">
+    <a class="marca" href="#inicio">
+      <img src="assets/logo.jpg" alt="BrainMemora" style="width:34px;height:34px;border-radius:9px;display:block;flex-shrink:0;">
+      <b>BrainMemora</b>
     </a>
-    <a href="#como-funciona" class="btn-secondary" data-i18n="hero_btn2">
-      Ver cómo funciona
+    <div class="nav-derecha">
+      <div class="lang-sel">
+        <button class="lang-btn activo" data-lang="es">ES</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="pt">PT</button>
+        <button class="lang-btn" data-lang="fr">FR</button>
+        <button class="lang-btn" data-lang="de">DE</button>
+      </div>
+      <a class="nav-cta" data-t="nav-cta" href="https://chromewebstore.google.com" target="_blank" rel="noopener">Instalar en Chrome</a>
+    </div>
+  </nav>
+
+  <div id="sticky">
+    <span data-t="sticky-msg">Convierte tu lectura en memoria duradera</span>
+    <a data-t="sticky-cta" href="https://chromewebstore.google.com" target="_blank" rel="noopener">Instalar — gratis</a>
+  </div>
+
+  <main>
+    <!-- ESTACIÓN 1 — Héroe -->
+    <section class="estacion" id="inicio">
+      <div class="eyebrow" data-t="e1-eye">La ciencia de recordar · en vivo</div>
+      <h1 data-th="e1-h1">Deja de subrayar.<br><i>Empieza a recordar.</i></h1>
+      <p class="sub" data-t="e1-sub">BrainMemora convierte cualquier texto o PDF en una sesión de estudio activo con IA: te hace recuperar de memoria, te corrige a tu nivel y reprograma el repaso justo antes de que olvides.</p>
+      <div class="acciones">
+        <a class="btn-1" data-t="e1-btn1" href="https://chromewebstore.google.com" target="_blank" rel="noopener">Instalar en Chrome — gratis</a>
+        <a class="btn-2" data-t="e1-btn2" href="#problema">Ver cómo funciona ↓</a>
+      </div>
+      <p class="micro" data-th="e1-micro">Construido sobre la evidencia: <b>recuperación activa</b> · <b>repetición espaciada</b> · <b>Feynman</b> · <b>interrogación elaborativa</b></p>
+    </section>
+
+    <!-- ESTACIÓN 2 — El problema -->
+    <section class="estacion derecha" id="problema">
+      <div class="eyebrow revelar" data-t="e2-eye">El espejismo del subrayado</div>
+      <h2 class="revelar d1" data-th="e2-h2">Subrayar se <i>siente</i> productivo.<br>Pero no lo es.</h2>
+      <p class="sub revelar d2" data-t="e2-sub">Releer y resaltar crean una ilusión de dominio: reconoces el texto, pero no puedes recuperarlo en el examen. El aprendizaje real exige esfuerzo — sacar la información de tu cabeza, no meterla con los ojos.</p>
+      <p class="micro revelar d3" data-th="e2-micro">BrainMemora invierte el flujo: <b>tú produces, la IA evalúa, tu memoria se fortalece.</b></p>
+    </section>
+
+    <!-- ESTACIÓN 3 — Los 3 pilares -->
+    <section class="estacion" id="pilares">
+      <div class="eyebrow revelar" data-t="e3-eye">El método de los que destacan</div>
+      <h2 class="revelar d1" data-th="e3-h2">No estudies más horas.<br>Estudia para <i>nunca olvidar</i>.</h2>
+      <p class="sub revelar d2" data-t="e3-sub">Tres pilares, respaldados por la evidencia, que cambian cómo aprende tu cerebro. No es leer más — es volverte imparable.</p>
+      <div class="pilares">
+        <div class="pilar revelar d1" data-n="01">
+          <div class="pilar-tag" data-t="p1-tag">Extracción</div>
+          <h3 data-t="p1-h3">Recuérdalo en el examen, no la noche anterior.</h3>
+          <p data-t="p1-p">Sacas la respuesta de tu propia memoria, sin mirar. Cada vez que la recuperas, se graba más profundo — hasta que recordar sea automático.</p>
+          <div class="promesa" data-t="p1-prom">La técnica #1 con respaldo científico para no quedarte en blanco.</div>
+        </div>
+        <div class="pilar revelar d2" data-n="02">
+          <div class="pilar-tag" data-t="p2-tag">Comprensión</div>
+          <h3 data-t="p2-h3">Entiéndelo tan bien que podrías enseñarlo.</h3>
+          <p data-t="p2-p">Lo explicas con tus palabras y la IA detecta justo dónde flaqueas. Pasas de "me suena" a "lo domino por completo".</p>
+          <div class="promesa" data-t="p2-prom">Si puedes explicarlo simple, es tuyo para siempre.</div>
+        </div>
+        <div class="pilar revelar d3" data-n="03">
+          <div class="pilar-tag" data-t="p3-tag">Contexto</div>
+          <h3 data-t="p3-h3">Aplícalo como un profesional, no como un libro.</h3>
+          <p data-t="p3-p">Resuelves casos y problemas reales. El conocimiento que usas bajo presión es el que de verdad se queda contigo.</p>
+          <div class="promesa" data-t="p3-prom">Del que solo aprueba al que sabe usarlo cuando importa.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ESTACIÓN 4 — Repaso espaciado -->
+    <section class="estacion derecha" id="repaso">
+      <div class="eyebrow revelar" data-t="e4-eye">Repetición espaciada</div>
+      <h2 class="revelar d1" data-th="e4-h2">Tu memoria, reforzada en el <i>momento justo</i>.</h2>
+      <p class="sub revelar d2" data-t="e4-sub">Cada cosa que estudias se convierte en una tarjeta con su propia fecha de repaso. Si aciertas, el intervalo crece: mañana → 3 días → una semana → más. Repasas justo antes de olvidar — ni demasiado pronto, ni demasiado tarde.</p>
+      <p class="micro revelar d3" data-th="e4-micro">Como las sinapsis de este fondo: <b>cada repaso enciende la conexión y la vuelve más fuerte.</b></p>
+    </section>
+
+    <!-- ESTACIÓN 5 — CTA final -->
+    <section class="estacion" id="final" style="align-items:center; text-align:center;">
+      <h2 class="revelar" data-t="e5-h2" style="max-width:18ch; margin-inline:auto;">Empieza hoy. Tu próximo examen lo notará.</h2>
+      <p class="sub revelar d1" data-t="e5-sub" style="margin-inline:auto;">Gratis para empezar: 3 PDFs al mes, 2 páginas web al día, todos los modos de estudio y la retroalimentación de la IA. Sin tarjeta.</p>
+      <div class="acciones revelar d2" style="justify-content:center;">
+        <a class="btn-1" data-t="e5-btn" href="https://chromewebstore.google.com" target="_blank" rel="noopener">Instalar en Chrome — gratis</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="marca" href="#inicio">
+      <img src="assets/logo.jpg" alt="BrainMemora" style="width:38px;height:38px;border-radius:10px;display:block;flex-shrink:0;">
+      <b style="font-family:var(--serif); font-size:18px;">BrainMemora</b>
     </a>
-  </div>
-  <div class="hero-proof">
-    <span class="pf" data-i18n-html="proof1"><span class="num">222</span> <strong>estudios científicos</strong> revisados</span>
-    <span class="pf" data-i18n-html="proof2"><span class="num">48.478</span> <strong>estudiantes</strong> analizados</span>
-    <div class="lang-selector" title="Change language / Cambiar idioma">
-      <button class="lang-btn active" onclick="setLang('es')" id="lang-es">ES</button>
-      <button class="lang-btn" onclick="setLang('en')" id="lang-en">EN</button>
-      <button class="lang-btn" onclick="setLang('pt')" id="lang-pt">PT</button>
-      <button class="lang-btn" onclick="setLang('fr')" id="lang-fr">FR</button>
-      <button class="lang-btn" onclick="setLang('de')" id="lang-de">DE</button>
-    </div>
-  </div>
-</section>
+    <p data-t="ft-tag">Aprende más, olvida menos.</p>
+    <p><a data-t="ft-legal" href="legal/privacidad.html">Política de Privacidad y Términos</a></p>
+    <p class="desktop-nota" data-t="ft-nota">💻 Para navegadores de escritorio (Windows · Mac · Linux). En Android: vía Kiwi o Firefox.</p>
+    <p style="margin-top:22px;">© 2026 BrainMemora · Keyner Tatis</p>
+  </footer>
 
-<!-- ═══════════════════════ PROBLEMA ══════════════════════════ -->
-<section>
-  <div class="container">
-    <div class="section-header center">
-      <div class="eyebrow" data-i18n="problem_tag">El problema</div>
-      <h2 class="section-title" data-i18n-html="problem_title">¿Por qué estudias tanto<br />y olvidas igual?</h2>
-      <p class="section-sub" data-i18n="problem_sub">
-        No es falta de esfuerzo. Es que llevas años usando métodos que se sienten
-        productivos pero casi no dejan huella en tu memoria.
-      </p>
-    </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+  // ─── Animación 3D ───────────────────────────────────────────────────────────
+  (function () {
+    var contenedor = document.getElementById('mundo');
+    var reduceMov = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var pantallaChica = window.innerWidth < 760;
 
-    <div class="problem-grid">
-      <div class="problem-card">
-        <span class="tag" data-i18n="prob1_tag">Releer</span>
-        <h3 data-i18n="prob1_title">La ilusión de saber</h3>
-        <p data-i18n="prob1_desc">Releer te da una falsa sensación de dominio. El texto te resulta familiar, pero tu mente no lo ha tenido que recuperar. Familiaridad no es memoria.</p>
-      </div>
-      <div class="problem-card">
-        <span class="tag" data-i18n="prob2_tag">Subrayar</span>
-        <h3 data-i18n="prob2_title">Pintar no es aprender</h3>
-        <p data-i18n="prob2_desc">Subrayar es de las técnicas con menos impacto real en lo que recuerdas a largo plazo. Tú lo sabes: subrayas hoy y mañana no recuerdas qué subrayaste.</p>
-      </div>
-      <div class="problem-card">
-        <span class="tag" data-i18n="prob3_tag">Resumir</span>
-        <h3 data-i18n="prob3_title">Copiar sin pensar</h3>
-        <p data-i18n="prob3_desc">Resumir copiando frases del texto produce seguridad falsa y muy poca transferencia. El conocimiento se queda en la página, no en tu cabeza.</p>
-      </div>
-    </div>
+    if (typeof THREE === 'undefined') { return; }
 
-    <div class="problem-solution">
-      <h3 data-i18n-html="prob_sol_title">BrainMemora reemplaza lo que no funciona<br />por lo que <em>sí</em></h3>
-      <p data-i18n="prob_sol_desc">
-        Cada sesión te obliga a recuperar, explicar y aplicar lo que lees — las técnicas
-        que la ciencia clasifica como de alta utilidad. No son opiniones: son décadas de
-        investigación con cientos de miles de estudiantes.
-      </p>
-    </div>
-  </div>
-</section>
+    var N = pantallaChica ? 160 : 300;
+    var DIST = pantallaChica ? 12 : 12;
 
-<!-- ═══════════════════════ CÓMO FUNCIONA ════════════════════ -->
-<section id="como-funciona">
-  <div class="container">
-    <div class="section-header center">
-      <div class="eyebrow" data-i18n="steps_tag">Cómo funciona</div>
-      <h2 class="section-title" data-i18n="steps_title">De la lectura al dominio en 3 pasos</h2>
-      <p class="section-sub" data-i18n="steps_sub">
-        Abre cualquier PDF, artículo o página web. BrainMemora aparece a tu lado y convierte
-        lo que lees en una sesión de aprendizaje activo.
-      </p>
-    </div>
+    var ancho = window.innerWidth, alto = window.innerHeight;
+    var escena = new THREE.Scene();
+    escena.fog = new THREE.FogExp2(0x08080c, 0.015);
 
-    <div class="steps-grid">
-      <div class="step-card">
-        <span class="step-num">1</span>
-        <h3 data-i18n="step1_title">Carga tu material</h3>
-        <p data-i18n="step1_desc">Abre un PDF, pega texto o activa BrainMemora sobre cualquier página web. La IA identifica los conceptos clave en segundos.</p>
-      </div>
-      <div class="step-card">
-        <span class="step-num">2</span>
-        <h3 data-i18n="step2_title">Elige tu modo de estudio</h3>
-        <p data-i18n="step2_desc">Examen, Feynman, Lectura Activa, Repaso Espaciado y más. O deja que BrainMemora escoja la estrategia óptima para tu objetivo.</p>
-      </div>
-      <div class="step-card">
-        <span class="step-num">3</span>
-        <h3 data-i18n="step3_title">Aprende con retroalimentación real</h3>
-        <p data-i18n="step3_desc">Respondes. La IA evalúa tu comprensión, te dice qué te faltó y arma un plan de repaso para que no lo olvides.</p>
-      </div>
-    </div>
-  </div>
-</section>
+    var camara = new THREE.PerspectiveCamera(60, ancho / alto, 0.1, 400);
+    camara.position.z = 58;
 
-<div class="divider"></div>
+    var render = new THREE.WebGLRenderer({ antialias: !pantallaChica, alpha: true, powerPreference: 'low-power' });
+    render.setPixelRatio(Math.min(window.devicePixelRatio, 1.7));
+    render.setSize(ancho, alto);
+    contenedor.appendChild(render.domElement);
 
-<!-- ═══════════════════════ 4 PILARES ═════════════════════════ -->
-<section>
-  <div class="container">
-    <div class="section-header">
-      <div class="eyebrow" data-i18n="pillars_tag">El sistema</div>
-      <h2 class="section-title" data-i18n-html="pillars_title">Lo que separa a quien <em>domina</em><br />de quien solo aprueba</h2>
-      <p class="section-sub" data-i18n="pillars_sub">
-        El estudiante promedio gasta la mayor parte de su tiempo en técnicas heredadas por
-        costumbre. BrainMemora te saca del promedio con cuatro pilares de aprendizaje real.
-      </p>
-    </div>
+    function texturaGlow() {
+      var c = document.createElement('canvas'); c.width = c.height = 64;
+      var g = c.getContext('2d');
+      var grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grad.addColorStop(0.0, 'rgba(201,178,255,0.62)');
+      grad.addColorStop(0.4, 'rgba(139,92,246,0.26)');
+      grad.addColorStop(1.0, 'rgba(139,92,246,0)');
+      g.fillStyle = grad; g.fillRect(0, 0, 64, 64);
+      return new THREE.CanvasTexture(c);
+    }
+    var glow = texturaGlow();
 
-    <div class="pillar-grid">
+    var grupo = new THREE.Group();
+    escena.add(grupo);
 
-      <div class="pillar-card">
-        <div class="pillar-header">
-          <div class="pillar-num">1</div>
-          <div>
-            <h3 data-i18n="p1_title">Extracción Activa</h3>
-            <div class="pillar-sub" data-i18n="p1_sub">Cuestionarios y práctica de recuperación</div>
-          </div>
-        </div>
-        <div class="pillar-badge" data-i18n="p1_badge">222 estudios · 48.478 estudiantes</div>
-        <p data-i18n="p1_desc">Fuerza a tu mente a recuperar información desde cero, sin mirar el texto. El mayor análisis global sobre el tema —222 estudios y 48.478 estudiantes— concluyó que evaluarte a ti mismo es la herramienta individual más potente para rendir en exámenes. Quien se evalúa, domina.</p>
-        <div class="pillar-cite" data-i18n="p1_cite">Yang C. et al., Psychological Bulletin, 2021</div>
-      </div>
+    var base = [], fases = [];
+    var RX = 50, RY = 34, RZ = 46;
+    var posiciones = new Float32Array(N * 3);
+    for (var i = 0; i < N; i++) {
+      var x = (Math.random() - 0.5) * RX * 2;
+      var y = (Math.random() - 0.5) * RY * 2;
+      var z = (Math.random() - 0.5) * RZ * 2;
+      posiciones[i*3] = x; posiciones[i*3+1] = y; posiciones[i*3+2] = z;
+      base.push(x, y, z);
+      fases.push(Math.random() * Math.PI * 2);
+    }
+    var geoP = new THREE.BufferGeometry();
+    var attrPos = new THREE.Float32BufferAttribute(posiciones, 3);
+    attrPos.setUsage(THREE.DynamicDrawUsage);
+    geoP.setAttribute('position', attrPos);
+    var pAttr = geoP.getAttribute('position');
 
-      <div class="pillar-card">
-        <div class="pillar-header">
-          <div class="pillar-num">2</div>
-          <div>
-            <h3 data-i18n="p2_title">Comprensión Profunda</h3>
-            <div class="pillar-sub" data-i18n="p2_sub">Feynman y Elaboración Activa</div>
-          </div>
-        </div>
-        <div class="pillar-badge" data-i18n="p2_badge">Aprendizaje activo, no pasivo</div>
-        <p data-i18n="p2_desc">Desarma el concepto y reescríbelo con tu propio vocabulario, como si se lo explicaras a alguien. Mientras el promedio subraya, tú activas la comprensión real. Estudiar de forma activa marca la diferencia entre entender y solo reconocer.</p>
-        <div class="pillar-cite" data-i18n="p2_cite">Freeman S. et al., PNAS, 2014 · Urrizola A. et al., Medical Teacher, 2023</div>
-      </div>
+    var matP = new THREE.PointsMaterial({
+      color: 0xffffff, map: glow, size: pantallaChica ? 2.4 : 1.9,
+      sizeAttenuation: true, transparent: true, opacity: 0.55,
+      depthWrite: false, blending: THREE.NormalBlending
+    });
+    grupo.add(new THREE.Points(geoP, matP));
 
-      <div class="pillar-card">
-        <div class="pillar-header">
-          <div class="pillar-num">3</div>
-          <div>
-            <h3 data-i18n="p3_title">Contexto Aplicado</h3>
-            <div class="pillar-sub" data-i18n="p3_sub">Casos clínicos, legales o de negocio reales</div>
-          </div>
-        </div>
-        <div class="pillar-badge" data-i18n="p3_badge">80 ensayos controlados</div>
-        <p data-i18n="p3_desc">Lleva la teoría al terreno resolviendo un caso clínico, un litigio legal o un reto de negocio real. Un análisis de 80 ensayos controlados encontró que el aprendizaje basado en casos es de los métodos más efectivos para dominar materias complejas. No estudies para el examen, estudia para el caso.</p>
-        <div class="pillar-cite" data-i18n="p3_cite">Zhang SL. et al., BMC Medical Education, 2024</div>
-      </div>
+    var pares = [];
+    for (var a = 0; a < N; a++) {
+      var conex = 0;
+      for (var b = a + 1; b < N && conex < 3; b++) {
+        var dx = base[a*3] - base[b*3], dy = base[a*3+1] - base[b*3+1], dz = base[a*3+2] - base[b*3+2];
+        if (dx*dx + dy*dy + dz*dz < DIST*DIST) { pares.push(a, b); conex++; }
+      }
+    }
+    var geoL = new THREE.BufferGeometry();
+    var attrL = new THREE.Float32BufferAttribute(new Float32Array(pares.length * 3), 3);
+    attrL.setUsage(THREE.DynamicDrawUsage);
+    var lineaPos = attrL.array;
+    geoL.setAttribute('position', attrL);
+    var matL = new THREE.LineBasicMaterial({ color: 0x8B5CF6, transparent: true, opacity: 0.09, blending: THREE.NormalBlending });
+    grupo.add(new THREE.LineSegments(geoL, matL));
 
-      <div class="pillar-card">
-        <div class="pillar-header">
-          <div class="pillar-num">4</div>
-          <div>
-            <h3 data-i18n="p4_title">Explicación en Voz Alta</h3>
-            <div class="pillar-sub" data-i18n="p4_sub">Enseñar y debatir lo aprendido</div>
-          </div>
-        </div>
-        <div class="pillar-badge" data-i18n="p4_badge">El mayor efecto en formación avanzada</div>
-        <p data-i18n="p4_desc">Explica el tema en voz alta como si enseñaras a un alumno, o contrástalo con un par. Explicar y debatir lo que aprendes está entre las prácticas con mayor efecto documentado en educación profesional. Es el catalizador del pensamiento crítico y la retención a largo plazo.</p>
-        <div class="pillar-cite" data-i18n="p4_cite">Huang PH. et al., Medical Teacher, 2019 · Bhuttah TM. et al., Scientific Reports, 2024</div>
-      </div>
+    var mx = 0, my = 0, mxObjetivo = 0, myObjetivo = 0;
+    window.addEventListener('mousemove', function (e) {
+      mxObjetivo = (e.clientX / window.innerWidth - 0.5);
+      myObjetivo = (e.clientY / window.innerHeight - 0.5);
+    });
 
-      <div class="pillar-card pillar-meta">
-        <div class="pillar-header">
-          <div class="pillar-num">★</div>
-          <div>
-            <h3 data-i18n="meta_title">Factor Exclusivo: Metacognición</h3>
-            <div class="pillar-sub" data-i18n="meta_sub">Tu auditor mental interno</div>
-          </div>
-        </div>
-        <div class="pillar-badge" data-i18n="meta_badge">92% de los estudiantes nunca la aplica</div>
-        <p data-i18n="meta_desc">¿Por qué este sistema te pone por encima del promedio de inmediato? Porque está auditado por la metacognición: saber conscientemente qué dominas y qué no. Es la herramienta más poderosa para retener a largo plazo, y aun así el 92% de los estudiantes de alto nivel no sabe cómo aplicarla. Al usar BrainMemora accedes a una ventaja que casi todos ignoran. No estudias más horas; aplicas ingeniería del aprendizaje.</p>
-        <div class="pillar-cite" data-i18n="meta_cite">Urrizola A. et al., Medical Teacher, 2023 · D'Antoni AV. et al., Clinical Anatomy, 2019</div>
-      </div>
+    var scrollN = 0;
+    function calcScroll() {
+      var max = document.body.scrollHeight - window.innerHeight;
+      scrollN = max > 0 ? Math.min(window.scrollY / max, 1) : 0;
+    }
+    window.addEventListener('scroll', calcScroll, { passive: true });
+    calcScroll();
 
-    </div>
-  </div>
-</section>
+    var corriendo = true;
+    document.addEventListener('visibilitychange', function () {
+      corriendo = !document.hidden;
+      if (corriendo) animar();
+    });
 
-<!-- ═══════════════════════ CIENCIA ══════════════════════════ -->
-<section class="science">
-  <div class="container">
-    <div class="section-header">
-      <div class="eyebrow" data-i18n="science_tag">La evidencia</div>
-      <h2 class="section-title" data-i18n-html="science_title">No es marketing.<br />Son números reales.</h2>
-      <p class="section-sub" data-i18n="science_sub">
-        Cada funcionalidad de BrainMemora se apoya en investigación publicada y revisada por
-        otros científicos. Estas son las cifras detrás del método.
-      </p>
-    </div>
+    var reloj = new THREE.Clock();
+    function animar() {
+      if (!corriendo || reduceMov) return;
+      requestAnimationFrame(animar);
+      var t = reloj.getElapsedTime();
 
-    <div class="evidence-grid">
-      <div class="evidence-card">
-        <div class="evidence-number">222</div>
-        <div class="evidence-label" data-i18n="ev1_label">Estudios científicos revisados sobre práctica de recuperación</div>
-      </div>
-      <div class="evidence-card">
-        <div class="evidence-number">48.478</div>
-        <div class="evidence-label" data-i18n="ev2_label">Estudiantes analizados — el mayor estudio global sobre el tema</div>
-      </div>
-      <div class="evidence-card">
-        <div class="evidence-number">80</div>
-        <div class="evidence-label" data-i18n="ev3_label">Ensayos controlados sobre aprendizaje basado en casos reales</div>
-      </div>
-      <div class="evidence-card">
-        <div class="evidence-number">92%</div>
-        <div class="evidence-label" data-i18n="ev4_label">De los estudiantes de alto nivel no sabe aplicar la metacognición</div>
-      </div>
-    </div>
+      for (var i = 0; i < N; i++) {
+        var ph = fases[i];
+        pAttr.array[i*3]   = base[i*3]   + Math.sin(t * 0.35 + ph) * 1.1;
+        pAttr.array[i*3+1] = base[i*3+1] + Math.cos(t * 0.30 + ph) * 1.1;
+        pAttr.array[i*3+2] = base[i*3+2] + Math.sin(t * 0.25 + ph) * 1.1;
+      }
+      pAttr.needsUpdate = true;
 
-    <div class="quote-block">
-      <span data-i18n="quote_text">"La ciencia lleva décadas diciéndolo: evaluarte a ti mismo de forma constante es la herramienta individual más potente para rendir en exámenes. No se trata de estudiar más horas, sino de estudiar de la forma correcta."</span>
-      <cite data-i18n="quote_cite">— Síntesis de Yang et al. (2021), Freeman et al. (2014) y Urrizola et al. (2023)</cite>
-    </div>
-  </div>
-</section>
+      for (var k = 0; k < pares.length; k += 2) {
+        var iA = pares[k] * 3, iB = pares[k+1] * 3, o = (k/2) * 6;
+        lineaPos[o]   = pAttr.array[iA];   lineaPos[o+1] = pAttr.array[iA+1]; lineaPos[o+2] = pAttr.array[iA+2];
+        lineaPos[o+3] = pAttr.array[iB];   lineaPos[o+4] = pAttr.array[iB+1]; lineaPos[o+5] = pAttr.array[iB+2];
+      }
+      attrL.needsUpdate = true;
 
-<!-- ═══════════════════════ AUDIENCIA ════════════════════════ -->
-<section>
-  <div class="container">
-    <div class="section-header center">
-      <div class="eyebrow" data-i18n="aud_tag">¿Para quién es?</div>
-      <h2 class="section-title" data-i18n="aud_title">Para quien estudia en serio</h2>
-      <p class="section-sub" data-i18n="aud_sub">
-        Si te importa aprender de verdad y no solo aprobar, BrainMemora es para ti.
-      </p>
-    </div>
+      matP.opacity = 0.50 + Math.sin(t * 0.7) * 0.06;
 
-    <div class="audience-grid">
-      <div class="audience-card">
-        <span class="idx" data-i18n="aud1_idx">01</span>
-        <h3 data-i18n="aud1_title">Profesionales en certificación</h3>
-        <p data-i18n="aud1_desc">Médicos, abogados, contadores, ingenieros. Material denso, tiempo limitado, consecuencias altas.</p>
-      </div>
-      <div class="audience-card">
-        <span class="idx" data-i18n="aud2_idx">02</span>
-        <h3 data-i18n="aud2_title">Estudiantes de posgrado</h3>
-        <p data-i18n="aud2_desc">Maestrías, doctorados, residencias. Varios PDFs a la vez, lectura técnica intensa.</p>
-      </div>
-      <div class="audience-card">
-        <span class="idx" data-i18n="aud3_idx">03</span>
-        <h3 data-i18n="aud3_title">Universitarios</h3>
-        <p data-i18n="aud3_desc">Pregrado que quiere más que memorizar. Aprender a estudiar cambia toda la carrera.</p>
-      </div>
-      <div class="audience-card">
-        <span class="idx" data-i18n="aud4_idx">04</span>
-        <h3 data-i18n="aud4_title">Autodidactas</h3>
-        <p data-i18n="aud4_desc">Idiomas, ciencias, habilidades técnicas. Si aprendes solo, necesitas un sistema que funcione.</p>
-      </div>
-    </div>
+      grupo.rotation.y = t * 0.022;
+      grupo.rotation.x = Math.sin(t * 0.07) * 0.05;
 
-    <div class="audience-note" data-i18n-html="aud_note">
-      BrainMemora nació pensando en <strong>universitarios</strong>, pero el método sirve para
-      cualquiera que necesite aprender de verdad: <strong>ingenieros, abogados, estudiantes de
-      secundaria o primaria, opositores y autodidactas</strong>. Si tienes algo que estudiar,
-      es para ti.
-    </div>
-  </div>
-</section>
+      mx += (mxObjetivo - mx) * 0.06;
+      my += (myObjetivo - my) * 0.06;
+      camara.position.z = 58 - scrollN * 32 + Math.sin(t * 0.16) * 1.4;
+      camara.position.x = mx * 8;
+      camara.position.y = -my * 6 + scrollN * 6;
+      camara.lookAt(0, 0, 0);
 
-<!-- ═══════════════════════ TRUST BAR ════════════════════════ -->
-<div class="trust-bar">
-  <div class="trust-inner">
-    <div class="trust-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      <span data-i18n="trust1">Cero retención de datos por la IA</span>
-    </div>
-    <div class="trust-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      <span data-i18n="trust2">Tus PDFs nunca se guardan en el servidor</span>
-    </div>
-    <div class="trust-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      <span data-i18n="trust3">Plan gratuito permanente — sin tarjeta</span>
-    </div>
-    <div class="trust-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      <span data-i18n="trust4">Creado por un médico internista</span>
-    </div>
-  </div>
-</div>
+      render.render(escena, camara);
+    }
+    if (reduceMov) {
+      for (var kk = 0; kk < pares.length; kk += 2) {
+        var jA = pares[kk]*3, jB = pares[kk+1]*3, oo = (kk/2)*6;
+        lineaPos[oo]=pAttr.array[jA]; lineaPos[oo+1]=pAttr.array[jA+1]; lineaPos[oo+2]=pAttr.array[jA+2];
+        lineaPos[oo+3]=pAttr.array[jB]; lineaPos[oo+4]=pAttr.array[jB+1]; lineaPos[oo+5]=pAttr.array[jB+2];
+      }
+      attrL.needsUpdate = true;
+      render.render(escena, camara);
+    } else {
+      animar();
+    }
 
-<!-- ═══════════════════════ PRECIOS ══════════════════════════ -->
-<section id="precios">
-  <div class="container">
-    <div class="section-header center">
-      <div class="eyebrow" data-i18n="price_tag">Precios</div>
-      <h2 class="section-title" data-i18n="price_title">Comienza gratis, hoy</h2>
-      <p class="section-sub" data-i18n="price_sub">
-        Sin tarjeta. Sin letra pequeña. El plan gratuito es permanente.
-      </p>
-    </div>
+    window.addEventListener('resize', function () {
+      ancho = window.innerWidth; alto = window.innerHeight;
+      camara.aspect = ancho / alto; camara.updateProjectionMatrix();
+      render.setSize(ancho, alto);
+      calcScroll();
+    });
+  })();
 
-    <div class="pricing-grid">
-      <div class="pricing-card">
-        <div class="plan-name" data-i18n="free_name">Gratuito</div>
-        <div class="plan-price">$0</div>
-        <div class="plan-desc" data-i18n="free_desc">Para siempre. Sin tarjeta de crédito.</div>
-        <a href="https://chromewebstore.google.com" class="plan-cta outline" target="_blank" rel="noopener" data-i18n="free_cta">
-          Instalar gratis
-        </a>
-        <ul class="plan-features">
-          <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="free_f1">5 documentos PDF por mes</span></li>
-          <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="free_f2">3 páginas web por día</span></li>
-          <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="free_f3">Todos los modos de estudio</span></li>
-          <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="free_f4">Retroalimentación de IA</span></li>
-          <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="free_f5">Español, Inglés, Portugués</span></li>
-          <li><svg class="cross" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span data-i18n="free_f6">Repetición Espaciada avanzada</span></li>
-          <li><svg class="cross" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span data-i18n="free_f7">Documentos ilimitados</span></li>
-        </ul>
-      </div>
+  // ─── Scroll + reveal ────────────────────────────────────────────────────────
+  (function () {
+    var io = new IntersectionObserver(function (entradas) {
+      entradas.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.18 });
+    document.querySelectorAll('.revelar').forEach(function (el) { io.observe(el); });
 
-      <div class="pricing-card featured">
-        <div class="featured-tag" data-i18n="pro_badge">Próximamente</div>
-        <div class="plan-name" data-i18n="pro_name">Pro</div>
-        <div class="plan-price"><sup>~</sup>$5<small>/mes</small></div>
-        <div class="plan-desc" data-i18n="pro_desc">≈ 20.000 COP/mes · Pagado con Paddle (acepta tarjetas colombianas y LATAM).</div>
-        <a href="#" class="plan-cta solid" onclick="alert('¡Pronto! Te avisaremos cuando esté disponible.'); return false;" data-i18n="pro_cta">
-          Lista de espera →
-        </a>
-        <ul class="plan-features">
-          <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="pro_f1">Todo lo del plan gratuito</span></li>
-          <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="pro_f2">Documentos ilimitados</span></li>
-          <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="pro_f3">Repetición Espaciada completa</span></li>
-          <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="pro_f4">Dashboard metacognitivo completo</span></li>
-          <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="pro_f5">Exportar a Anki, Notion, PDF</span></li>
-          <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="pro_f6">Soporte prioritario por email</span></li>
-          <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="pro_f7">Idiomas adicionales</span></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
+    var nav = document.getElementById('nav');
+    var sticky = document.getElementById('sticky');
+    window.addEventListener('scroll', function () {
+      var y = window.scrollY;
+      nav.classList.toggle('flotando', y > 40);
+      sticky.classList.toggle('visible', y > window.innerHeight * 0.7);
+    }, { passive: true });
+  })();
 
-<div class="divider"></div>
+  // ─── Internacionalización ────────────────────────────────────────────────────
+  (function () {
+    var TEXTOS = {
+      es: {
+        title: 'BrainMemora — Viaja por la ciencia de recordar',
+        'meta-desc': 'Una extensión de Chrome que convierte tu lectura pasiva en aprendizaje activo, basada en la evidencia: recuperación, repetición espaciada y Feynman. Para navegadores de escritorio.',
+        'nav-cta': 'Instalar en Chrome',
+        'sticky-msg': 'Convierte tu lectura en memoria duradera',
+        'sticky-cta': 'Instalar — gratis',
+        'e1-eye': 'La ciencia de recordar · en vivo',
+        'e1-h1': 'Deja de subrayar.<br><i>Empieza a recordar.</i>',
+        'e1-sub': 'BrainMemora convierte cualquier texto o PDF en una sesión de estudio activo con IA: te hace recuperar de memoria, te corrige a tu nivel y reprograma el repaso justo antes de que olvides.',
+        'e1-micro': 'Construido sobre la evidencia: <b>recuperación activa</b> · <b>repetición espaciada</b> · <b>Feynman</b> · <b>interrogación elaborativa</b>',
+        'e1-btn1': 'Instalar en Chrome — gratis',
+        'e1-btn2': 'Ver cómo funciona ↓',
+        'e2-eye': 'El espejismo del subrayado',
+        'e2-h2': 'Subrayar se <i>siente</i> productivo.<br>Pero no lo es.',
+        'e2-sub': 'Releer y resaltar crean una ilusión de dominio: reconoces el texto, pero no puedes recuperarlo en el examen. El aprendizaje real exige esfuerzo — sacar la información de tu cabeza, no meterla con los ojos.',
+        'e2-micro': 'BrainMemora invierte el flujo: <b>tú produces, la IA evalúa, tu memoria se fortalece.</b>',
+        'e3-eye': 'El método de los que destacan',
+        'e3-h2': 'No estudies más horas.<br>Estudia para <i>nunca olvidar</i>.',
+        'e3-sub': 'Tres pilares, respaldados por la evidencia, que cambian cómo aprende tu cerebro. No es leer más — es volverte imparable.',
+        'p1-tag': 'Extracción', 'p1-h3': 'Recuérdalo en el examen, no la noche anterior.',
+        'p1-p': 'Sacas la respuesta de tu propia memoria, sin mirar. Cada vez que la recuperas, se graba más profundo — hasta que recordar sea automático.',
+        'p1-prom': 'La técnica #1 con respaldo científico para no quedarte en blanco.',
+        'p2-tag': 'Comprensión', 'p2-h3': 'Entiéndelo tan bien que podrías enseñarlo.',
+        'p2-p': 'Lo explicas con tus palabras y la IA detecta justo dónde flaqueas. Pasas de "me suena" a "lo domino por completo".',
+        'p2-prom': 'Si puedes explicarlo simple, es tuyo para siempre.',
+        'p3-tag': 'Contexto', 'p3-h3': 'Aplícalo como un profesional, no como un libro.',
+        'p3-p': 'Resuelves casos y problemas reales. El conocimiento que usas bajo presión es el que de verdad se queda contigo.',
+        'p3-prom': 'Del que solo aprueba al que sabe usarlo cuando importa.',
+        'e4-eye': 'Repetición espaciada',
+        'e4-h2': 'Tu memoria, reforzada en el <i>momento justo</i>.',
+        'e4-sub': 'Cada cosa que estudias se convierte en una tarjeta con su propia fecha de repaso. Si aciertas, el intervalo crece: mañana → 3 días → una semana → más. Repasas justo antes de olvidar — ni demasiado pronto, ni demasiado tarde.',
+        'e4-micro': 'Como las sinapsis de este fondo: <b>cada repaso enciende la conexión y la vuelve más fuerte.</b>',
+        'e5-h2': 'Empieza hoy. Tu próximo examen lo notará.',
+        'e5-sub': 'Gratis para empezar: 3 PDFs al mes, 2 páginas web al día, todos los modos de estudio y la retroalimentación de la IA. Sin tarjeta.',
+        'e5-btn': 'Instalar en Chrome — gratis',
+        'ft-tag': 'Aprende más, olvida menos.',
+        'ft-legal': 'Política de Privacidad y Términos',
+        'ft-nota': '💻 Para navegadores de escritorio (Windows · Mac · Linux). En Android: vía Kiwi o Firefox.'
+      },
+      en: {
+        title: 'BrainMemora — Journey through the science of memory',
+        'meta-desc': 'A Chrome extension that turns passive reading into active learning: retrieval practice, spaced repetition and Feynman. For desktop browsers.',
+        'nav-cta': 'Install in Chrome',
+        'sticky-msg': 'Turn your reading into lasting memory',
+        'sticky-cta': 'Install — free',
+        'e1-eye': 'The science of memory · live',
+        'e1-h1': 'Stop highlighting.<br><i>Start remembering.</i>',
+        'e1-sub': 'BrainMemora turns any text or PDF into an active study session with AI: it makes you retrieve from memory, corrects you at your level and schedules review just before you forget.',
+        'e1-micro': 'Built on evidence: <b>active retrieval</b> · <b>spaced repetition</b> · <b>Feynman</b> · <b>elaborative interrogation</b>',
+        'e1-btn1': 'Install in Chrome — free',
+        'e1-btn2': 'See how it works ↓',
+        'e2-eye': 'The highlighting illusion',
+        'e2-h2': 'Highlighting <i>feels</i> productive.<br>But it isn\'t.',
+        'e2-sub': 'Rereading and highlighting create an illusion of mastery: you recognise the text, but can\'t recall it in the exam. Real learning demands effort — pulling information out of your head, not putting it in with your eyes.',
+        'e2-micro': 'BrainMemora flips the flow: <b>you produce, the AI evaluates, your memory strengthens.</b>',
+        'e3-eye': 'The method of top performers',
+        'e3-h2': 'Don\'t study more hours.<br>Study to <i>never forget</i>.',
+        'e3-sub': 'Three pillars, backed by evidence, that change how your brain learns. Not about reading more — about becoming unstoppable.',
+        'p1-tag': 'Retrieval', 'p1-h3': 'Remember it in the exam, not the night before.',
+        'p1-p': 'You pull the answer from your own memory, without looking. Every time you retrieve it, it goes deeper — until remembering becomes automatic.',
+        'p1-prom': 'The #1 scientifically-backed technique for never going blank.',
+        'p2-tag': 'Comprehension', 'p2-h3': 'Understand it well enough to teach it.',
+        'p2-p': 'You explain it in your own words and the AI spots exactly where you\'re shaky. From "it rings a bell" to "I fully own this".',
+        'p2-prom': 'If you can explain it simply, it\'s yours forever.',
+        'p3-tag': 'Context', 'p3-h3': 'Apply it like a professional, not like a textbook.',
+        'p3-p': 'You solve real cases and problems. Knowledge you use under pressure is the kind that truly stays with you.',
+        'p3-prom': 'From just-passing to knowing when it counts.',
+        'e4-eye': 'Spaced repetition',
+        'e4-h2': 'Your memory, reinforced at the <i>right moment</i>.',
+        'e4-sub': 'Everything you study becomes a card with its own review date. Nail it and the interval grows: tomorrow → 3 days → a week → longer. You review just before forgetting — never too soon, never too late.',
+        'e4-micro': 'Like the synapses in this background: <b>each review fires the connection and makes it stronger.</b>',
+        'e5-h2': 'Start today. Your next exam will feel the difference.',
+        'e5-sub': 'Free to start: 3 PDFs a month, 2 web pages a day, all study modes and AI feedback. No card required.',
+        'e5-btn': 'Install in Chrome — free',
+        'ft-tag': 'Learn more, forget less.',
+        'ft-legal': 'Privacy Policy & Terms',
+        'ft-nota': '💻 For desktop browsers (Windows · Mac · Linux). On Android: via Kiwi or Firefox.'
+      },
+      pt: {
+        title: 'BrainMemora — Viaje pela ciência de memorizar',
+        'meta-desc': 'Uma extensão do Chrome que transforma leitura passiva em aprendizado ativo: recuperação, repetição espaçada e Feynman. Para navegadores de desktop.',
+        'nav-cta': 'Instalar no Chrome',
+        'sticky-msg': 'Transforme sua leitura em memória duradoura',
+        'sticky-cta': 'Instalar — grátis',
+        'e1-eye': 'A ciência de memorizar · ao vivo',
+        'e1-h1': 'Pare de sublinhar.<br><i>Comece a memorizar.</i>',
+        'e1-sub': 'BrainMemora transforma qualquer texto ou PDF em uma sessão de estudo ativo com IA: faz você recuperar da memória, corrige no seu nível e agenda a revisão antes que você esqueça.',
+        'e1-micro': 'Construído com evidências: <b>recuperação ativa</b> · <b>repetição espaçada</b> · <b>Feynman</b> · <b>interrogação elaborativa</b>',
+        'e1-btn1': 'Instalar no Chrome — grátis',
+        'e1-btn2': 'Ver como funciona ↓',
+        'e2-eye': 'A ilusão do grifo',
+        'e2-h2': 'Grifar <i>parece</i> produtivo.<br>Mas não é.',
+        'e2-sub': 'Reler e sublinhar criam uma ilusão de domínio: você reconhece o texto, mas não consegue recuperá-lo na prova. O aprendizado real exige esforço — tirar a informação da sua cabeça, não colocá-la com os olhos.',
+        'e2-micro': 'BrainMemora inverte o fluxo: <b>você produz, a IA avalia, sua memória se fortalece.</b>',
+        'e3-eye': 'O método dos que se destacam',
+        'e3-h2': 'Não estude mais horas.<br>Estude para <i>nunca esquecer</i>.',
+        'e3-sub': 'Três pilares, respaldados pela evidência, que mudam como seu cérebro aprende. Não se trata de ler mais — é se tornar imparável.',
+        'p1-tag': 'Recuperação', 'p1-h3': 'Lembre na prova, não na véspera.',
+        'p1-p': 'Você tira a resposta da sua própria memória, sem olhar. Cada vez que recupera, vai mais fundo — até que lembrar vire automático.',
+        'p1-prom': 'A técnica nº 1 com respaldo científico para nunca dar um branco.',
+        'p2-tag': 'Compreensão', 'p2-h3': 'Entenda tão bem que poderia ensinar.',
+        'p2-p': 'Você explica com suas palavras e a IA detecta exatamente onde você vacila. De "me lembra vagamente" a "domino por completo".',
+        'p2-prom': 'Se consegue explicar de forma simples, é seu para sempre.',
+        'p3-tag': 'Contexto', 'p3-h3': 'Aplique como profissional, não como livro.',
+        'p3-p': 'Você resolve casos e problemas reais. O conhecimento que usa sob pressão é o que realmente fica.',
+        'p3-prom': 'De quem só passa para quem sabe usar quando importa.',
+        'e4-eye': 'Repetição espaçada',
+        'e4-h2': 'Sua memória, reforçada no <i>momento certo</i>.',
+        'e4-sub': 'Cada coisa que você estuda vira um cartão com sua própria data de revisão. Se acertar, o intervalo cresce: amanhã → 3 dias → uma semana → mais. Você revisa antes de esquecer — nem cedo demais, nem tarde demais.',
+        'e4-micro': 'Como as sinapses deste fundo: <b>cada revisão acende a conexão e a torna mais forte.</b>',
+        'e5-h2': 'Comece hoje. Sua próxima prova vai sentir a diferença.',
+        'e5-sub': 'Grátis para começar: 3 PDFs por mês, 2 páginas web por dia, todos os modos de estudo e feedback de IA. Sem cartão.',
+        'e5-btn': 'Instalar no Chrome — grátis',
+        'ft-tag': 'Aprenda mais, esqueça menos.',
+        'ft-legal': 'Política de Privacidade e Termos',
+        'ft-nota': '💻 Para navegadores de desktop (Windows · Mac · Linux). No Android: via Kiwi ou Firefox.'
+      },
+      fr: {
+        title: 'BrainMemora — Voyage à travers la science de la mémoire',
+        'meta-desc': 'Une extension Chrome qui transforme la lecture passive en apprentissage actif : récupération, répétition espacée et Feynman. Pour navigateurs de bureau.',
+        'nav-cta': 'Installer sur Chrome',
+        'sticky-msg': 'Transformez votre lecture en mémoire durable',
+        'sticky-cta': 'Installer — gratuit',
+        'e1-eye': 'La science de mémoriser · en direct',
+        'e1-h1': 'Arrêtez de surligner.<br><i>Commencez à retenir.</i>',
+        'e1-sub': 'BrainMemora transforme n\'importe quel texte ou PDF en session d\'étude active avec IA : il vous fait récupérer de mémoire, vous corrige à votre niveau et programme la révision juste avant l\'oubli.',
+        'e1-micro': 'Fondé sur les preuves : <b>récupération active</b> · <b>répétition espacée</b> · <b>Feynman</b> · <b>questionnement élaboratif</b>',
+        'e1-btn1': 'Installer sur Chrome — gratuit',
+        'e1-btn2': 'Voir comment ça marche ↓',
+        'e2-eye': 'L\'illusion du surlignage',
+        'e2-h2': 'Surligner <i>donne l\'impression</i> d\'être productif.<br>Mais ça ne l\'est pas.',
+        'e2-sub': 'Relire et surligner créent une illusion de maîtrise : vous reconnaissez le texte, mais ne pouvez pas le rappeler à l\'examen. Le vrai apprentissage exige un effort — extraire l\'information de votre tête, pas la mettre avec les yeux.',
+        'e2-micro': 'BrainMemora inverse le flux : <b>vous produisez, l\'IA évalue, votre mémoire se renforce.</b>',
+        'e3-eye': 'La méthode des meilleurs',
+        'e3-h2': 'N\'étudiez pas plus d\'heures.<br>Étudiez pour <i>ne jamais oublier</i>.',
+        'e3-sub': 'Trois piliers, soutenus par les preuves, qui changent la façon dont votre cerveau apprend. Pas question de lire plus — devenez inarrêtable.',
+        'p1-tag': 'Récupération', 'p1-h3': 'Rappelez-vous à l\'examen, pas la veille.',
+        'p1-p': 'Vous tirez la réponse de votre propre mémoire, sans regarder. Chaque fois que vous la récupérez, elle s\'ancre plus profondément — jusqu\'à ce que se souvenir devienne automatique.',
+        'p1-prom': 'La technique n°1 scientifiquement validée pour ne jamais avoir de trou de mémoire.',
+        'p2-tag': 'Compréhension', 'p2-h3': 'Comprenez si bien que vous pourriez l\'enseigner.',
+        'p2-p': 'Vous l\'expliquez avec vos propres mots et l\'IA détecte exactement là où vous hésitez. De « ça me dit quelque chose » à « je maîtrise complètement ».',
+        'p2-prom': 'Si vous pouvez l\'expliquer simplement, c\'est à vous pour toujours.',
+        'p3-tag': 'Contexte', 'p3-h3': 'Appliquez-le comme un professionnel, pas comme un manuel.',
+        'p3-p': 'Vous résolvez de vrais cas et problèmes. La connaissance que vous utilisez sous pression est celle qui reste vraiment.',
+        'p3-prom': 'De celui qui réussit juste à celui qui sait quand ça compte.',
+        'e4-eye': 'Répétition espacée',
+        'e4-h2': 'Votre mémoire, renforcée au <i>bon moment</i>.',
+        'e4-sub': 'Chaque chose que vous étudiez devient une carte avec sa propre date de révision. Si vous réussissez, l\'intervalle grandit : demain → 3 jours → une semaine → plus. Vous révisez juste avant d\'oublier — ni trop tôt, ni trop tard.',
+        'e4-micro': 'Comme les synapses de ce fond : <b>chaque révision allume la connexion et la renforce.</b>',
+        'e5-h2': 'Commencez aujourd\'hui. Votre prochain examen le sentira.',
+        'e5-sub': 'Gratuit pour commencer : 3 PDFs par mois, 2 pages web par jour, tous les modes d\'étude et les retours de l\'IA. Sans carte.',
+        'e5-btn': 'Installer sur Chrome — gratuit',
+        'ft-tag': 'Apprenez plus, oubliez moins.',
+        'ft-legal': 'Politique de confidentialité et CGU',
+        'ft-nota': '💻 Pour navigateurs de bureau (Windows · Mac · Linux). Sur Android : via Kiwi ou Firefox.'
+      },
+      de: {
+        title: 'BrainMemora — Reise durch die Wissenschaft des Erinnerns',
+        'meta-desc': 'Eine Chrome-Erweiterung, die passives Lesen in aktives Lernen verwandelt: Abruf, Spaced Repetition und Feynman. Für Desktop-Browser.',
+        'nav-cta': 'In Chrome installieren',
+        'sticky-msg': 'Wandle dein Lesen in dauerhaftes Erinnern',
+        'sticky-cta': 'Installieren — kostenlos',
+        'e1-eye': 'Die Wissenschaft des Erinnerns · live',
+        'e1-h1': 'Hör auf zu markieren.<br><i>Fang an zu erinnern.</i>',
+        'e1-sub': 'BrainMemora verwandelt jeden Text oder jedes PDF in eine aktive Lernsession mit KI: Es lässt dich aus dem Gedächtnis abrufen, korrigiert dich auf deinem Niveau und plant die Wiederholung genau bevor du vergisst.',
+        'e1-micro': 'Auf Evidenz aufgebaut: <b>aktiver Abruf</b> · <b>Spaced Repetition</b> · <b>Feynman</b> · <b>elaboratives Befragen</b>',
+        'e1-btn1': 'In Chrome installieren — kostenlos',
+        'e1-btn2': 'Wie es funktioniert ↓',
+        'e2-eye': 'Die Illusion des Markierens',
+        'e2-h2': 'Markieren <i>fühlt sich</i> produktiv an.<br>Aber ist es nicht.',
+        'e2-sub': 'Wiederlesen und Markieren erzeugen eine Illusion des Beherrschens: Du erkennst den Text, kannst ihn aber in der Prüfung nicht abrufen. Echtes Lernen erfordert Anstrengung — Informationen aus deinem Kopf holen, nicht mit den Augen hineinlegen.',
+        'e2-micro': 'BrainMemora kehrt den Fluss um: <b>Du produzierst, die KI bewertet, dein Gedächtnis wird stärker.</b>',
+        'e3-eye': 'Die Methode der Besten',
+        'e3-h2': 'Lerne nicht mehr Stunden.<br>Lerne, um <i>nie zu vergessen</i>.',
+        'e3-sub': 'Drei Säulen, durch Evidenz gestützt, die verändern, wie dein Gehirn lernt. Nicht mehr lesen — unaufhaltbar werden.',
+        'p1-tag': 'Abruf', 'p1-h3': 'Erinnere dich in der Prüfung, nicht die Nacht davor.',
+        'p1-p': 'Du holst die Antwort aus deinem eigenen Gedächtnis, ohne nachzuschauen. Jedes Mal wenn du abrufst, vertieft es sich — bis Erinnern automatisch wird.',
+        'p1-prom': 'Die wissenschaftlich belegte Technik Nr. 1 gegen Blackouts.',
+        'p2-tag': 'Verständnis', 'p2-h3': 'Verstehe es so gut, dass du es lehren könntest.',
+        'p2-p': 'Du erklärst es mit eigenen Worten und die KI erkennt genau, wo du unsicher bist. Von "klingt bekannt" zu "ich beherrsche es vollständig".',
+        'p2-prom': 'Wenn du es einfach erklären kannst, gehört es dir für immer.',
+        'p3-tag': 'Kontext', 'p3-h3': 'Wende es wie ein Profi an, nicht wie ein Lehrbuch.',
+        'p3-p': 'Du löst echte Fälle und Probleme. Wissen, das du unter Druck anwendest, bleibt wirklich bei dir.',
+        'p3-prom': 'Vom Bestehen zum Wissen, wenn es darauf ankommt.',
+        'e4-eye': 'Spaced Repetition',
+        'e4-h2': 'Dein Gedächtnis, gestärkt im <i>richtigen Moment</i>.',
+        'e4-sub': 'Alles, was du lernst, wird zu einer Karte mit eigenem Wiederholungsdatum. Bei Erfolg wächst das Intervall: morgen → 3 Tage → eine Woche → länger. Du wiederholst genau bevor du vergisst — nie zu früh, nie zu spät.',
+        'e4-micro': 'Wie die Synapsen dieses Hintergrunds: <b>Jede Wiederholung feuert die Verbindung und macht sie stärker.</b>',
+        'e5-h2': 'Starte heute. Deine nächste Prüfung wird es merken.',
+        'e5-sub': 'Kostenlos starten: 3 PDFs pro Monat, 2 Webseiten pro Tag, alle Lernmodi und KI-Feedback. Ohne Karte.',
+        'e5-btn': 'In Chrome installieren — kostenlos',
+        'ft-tag': 'Mehr lernen, weniger vergessen.',
+        'ft-legal': 'Datenschutz & Nutzungsbedingungen',
+        'ft-nota': '💻 Für Desktop-Browser (Windows · Mac · Linux). Auf Android: via Kiwi oder Firefox.'
+      }
+    };
 
-<!-- ═══════════════════════ FAQ ═══════════════════════════════ -->
-<section>
-  <div class="container">
-    <div class="section-header center">
-      <div class="eyebrow" data-i18n="faq_tag">Preguntas frecuentes</div>
-      <h2 class="section-title" data-i18n="faq_title">Respuestas directas</h2>
-    </div>
+    function setLang(code) {
+      var d = TEXTOS[code];
+      if (!d) return;
+      document.documentElement.lang = code;
+      document.title = d.title;
+      document.getElementById('meta-desc').setAttribute('content', d['meta-desc']);
+      document.querySelectorAll('[data-t]').forEach(function (el) {
+        el.textContent = d[el.dataset.t] || el.textContent;
+      });
+      document.querySelectorAll('[data-th]').forEach(function (el) {
+        el.innerHTML = d[el.dataset.th] || el.innerHTML;
+      });
+      document.querySelectorAll('.lang-btn').forEach(function (btn) {
+        btn.classList.toggle('activo', btn.dataset.lang === code);
+      });
+      try { localStorage.setItem('bm-lang', code); } catch (_) {}
+    }
 
-    <div class="faq-list">
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)" data-i18n="faq1_q">¿Mis PDFs se guardan en algún servidor?</button>
-        <div class="faq-a" data-i18n="faq1_a">
-          No. BrainMemora procesa tu material localmente en el navegador siempre que es posible.
-          Cuando la IA necesita evaluar tu respuesta, solo se envían fragmentos de texto temporales.
-          No guardamos copias de tus documentos. Tu material de estudio es privado.
-        </div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)" data-i18n="faq2_q">¿La IA usa mis textos para entrenarse?</button>
-        <div class="faq-a" data-i18n="faq2_a">
-          No. Usamos la API de Anthropic (Claude) bajo política de Cero Retención de Datos.
-          Tan pronto como la IA genera la retroalimentación, el proveedor borra el contenido.
-          Tus textos nunca se usan para entrenar modelos de inteligencia artificial.
-        </div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)" data-i18n="faq3_q">¿Funciona con PDFs médicos o técnicos complejos?</button>
-        <div class="faq-a" data-i18n="faq3_a">
-          Sí. BrainMemora fue diseñado por un médico internista precisamente para material académico
-          denso y técnico. La IA calibra el nivel de complejidad y las preguntas se adaptan al
-          contenido. Funciona bien con textos de medicina, derecho, ciencias, ingeniería y más.
-        </div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)" data-i18n="faq4_q">¿Qué diferencia a BrainMemora de NotebookLM o ChatPDF?</button>
-        <div class="faq-a" data-i18n="faq4_a">
-          NotebookLM y ChatPDF son herramientas de consulta pasiva — responden preguntas sobre
-          tus documentos. BrainMemora es un motor pedagógico: conduce sesiones de aprendizaje activo,
-          aplica metodologías científicas y genera un plan de retención personalizado.
-          La diferencia es como comparar un buscador con un tutor.
-        </div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)" data-i18n="faq5_q">¿Puedo usarlo si no soy de medicina?</button>
-        <div class="faq-a" data-i18n="faq5_a">
-          Por supuesto. Las metodologías de aprendizaje que aplica BrainMemora son universales —
-          funcionan para cualquier disciplina, nivel educativo e idioma. Si estudias cualquier
-          cosa que requiera comprensión real (no solo memorización superficial), BrainMemora te sirve.
-        </div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)" data-i18n="faq6_q">¿En qué países está disponible?</button>
-        <div class="faq-a" data-i18n="faq6_a">
-          BrainMemora está disponible globalmente como extensión de Chrome. La interfaz está disponible en 5 idiomas: Español, English, Português, Français y Deutsch — usa el selector de idioma en la parte superior de esta página. Puedes estudiar documentos en cualquier idioma y recibir retroalimentación en tu idioma preferido.
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+    document.querySelectorAll('.lang-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () { setLang(btn.dataset.lang); });
+    });
 
-<!-- ═══════════════════════ FINAL CTA ════════════════════════ -->
-<section class="final-cta">
-  <div class="container">
-    <h2 data-i18n-html="final_title">Empieza a estudiar de la forma<br />que <em>sí</em> funciona</h2>
-    <p data-i18n="final_sub">
-      Gratis. Sin tarjeta. La ciencia del aprendizaje en tu navegador desde el primer minuto.
-    </p>
-    <a href="https://chromewebstore.google.com" class="btn-primary" target="_blank" rel="noopener" data-i18n="final_cta">
-      Instalar BrainMemora gratis en Chrome
-    </a>
-  </div>
-</section>
-
-<!-- ═══════════════════════ FOOTER ════════════════════════════ -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-top">
-      <div class="footer-brand">
-        <div class="logo-text">
-          <span class="mark">
-            <svg viewBox="0 0 48 48" fill="#fff"><path fill-rule="evenodd" clip-rule="evenodd" d="M14.5 20.4C12 20.4 10.6 18.5 11.2 16.5C9.8 15 10.2 12.3 12.1 11.5C11.8 9.4 13.5 7.8 15.6 8.1C16.1 6.4 18.4 5.8 20 6.9C20.9 5.7 23 5.8 24 7.1C25 5.8 27.1 5.7 28 6.9C29.6 5.8 31.9 6.4 32.4 8.1C34.5 7.8 36.2 9.4 35.9 11.5C37.8 12.3 38.2 15 36.8 16.5C37.4 18.5 36 20.4 33.5 20.4C30 21.9 27 22.1 24 21.3C21 22.1 18 21.9 14.5 20.4ZM24 8.6C23.3 11 23.3 16 24 19C24.7 16 24.7 11 24 8.6ZM16.6 11C18.5 11.8 19.5 13.6 19.1 15.8C18.5 13.8 17.3 12.4 15.9 11.8C16 11.4 16.3 11.1 16.6 11ZM31.4 11C29.5 11.8 28.5 13.6 28.9 15.8C29.5 13.8 30.7 12.4 32.1 11.8C32 11.4 31.7 11.1 31.4 11Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M24 29.6C18 26.6 11.5 25.6 7 26.6C6.4 26.7 6.2 27.1 6.4 27.7C8 31.6 8.6 33.6 9 35.5C9.1 36.1 9.8 36.4 10.4 36.1C14.5 34.1 19.6 34.3 24 36.3C28.4 34.3 33.5 34.1 37.6 36.1C38.2 36.4 38.9 36.1 39 35.5C39.4 33.6 40 31.6 41.6 27.7C41.8 27.1 41.6 26.7 41 26.6C36.5 25.6 30 26.6 24 29.6ZM24 31C23.4 33 23.4 34.4 24 35.8C24.6 34.4 24.6 33 24 31ZM11.6 29.9C14.6 29.1 18 29 21 29.7C18 29.5 14.6 29.7 11.8 30.6ZM12.7 32.7C15.3 32 18 31.9 20.6 32.5C18 32.3 15.3 32.5 12.9 33.3ZM36.4 29.9C33.4 29.1 30 29 27 29.7C30 29.5 33.4 29.7 36.2 30.6ZM35.3 32.7C32.7 32 30 31.9 27.4 32.5C30 32.3 32.7 32.5 35.1 33.3Z"/></svg>
-          </span>
-          BrainMemora
-        </div>
-        <p data-i18n="footer_about">
-          Asistente de aprendizaje basado en evidencia científica. Creado por un médico
-          internista en Colombia para quienes quieren aprender de verdad.
-        </p>
-      </div>
-
-      <div class="footer-col">
-        <h4 data-i18n="footer_product">Producto</h4>
-        <ul>
-          <li><a href="#como-funciona" data-i18n="footer_how">Cómo funciona</a></li>
-          <li><a href="#precios" data-i18n="footer_pricing">Precios</a></li>
-          <li><a href="https://chromewebstore.google.com" target="_blank" rel="noopener" data-i18n="footer_install">Instalar en Chrome</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-col">
-        <h4 data-i18n="footer_legal">Legal</h4>
-        <ul>
-          <li><a href="privacidad.html#privacidad" data-i18n="footer_privacy">Política de Privacidad</a></li>
-          <li><a href="privacidad.html#terminos" data-i18n="footer_terms">Términos de Servicio</a></li>
-          <li><a href="mailto:keynertatis@gmail.com" data-i18n="footer_contact">Contacto</a></li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="footer-bottom">
-      <span data-i18n="footer_copy">© 2026 BrainMemora — Keyner Tatis · Colombia</span>
-      <span><a href="mailto:keynertatis@gmail.com">keynertatis@gmail.com</a></span>
-    </div>
-  </div>
-</footer>
-
-<!-- ═══════════════════════ MOBILE STICKY CTA ════════════════ -->
-<div class="mobile-cta">
-  <a href="https://chromewebstore.google.com" target="_blank" rel="noopener" data-i18n="mobile_cta">
-    Instalar gratis en Chrome
-  </a>
-</div>
-
-<script>
-/* ─── FAQ ──────────────────────────────────────────────────────── */
-function toggleFaq(btn) {
-  var item = btn.parentElement;
-  var isOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item.open').forEach(function(el){ el.classList.remove('open'); });
-  if (!isOpen) item.classList.add('open');
-}
-
-/* ─── i18n ─────────────────────────────────────────────────────── */
-var T = {
-  es: {
-    page_title: "BrainMemora — Convierte lo que lees en conocimiento que no se borra",
-    nav_cta: "Instalar gratis →",
-    hero_badge: "Aprendizaje respaldado por miles de estudios reales",
-    hero_h1: "Convierte lo que lees en<br /><em>conocimiento que no se borra</em>",
-    hero_sub: "No es otro chat para tus PDFs. BrainMemora te hace estudiar de la forma que la ciencia comprobó que funciona — la misma que casi nadie usa porque cuesta más que subrayar.",
-    hero_btn1: "Instalar en Chrome — es gratis",
-    hero_btn2: "Ver cómo funciona",
-    proof1: "<span class=\"num\">222</span> <strong>estudios científicos</strong> revisados",
-    proof2: "<span class=\"num\">48.478</span> <strong>estudiantes</strong> analizados",
-    problem_tag: "El problema",
-    problem_title: "¿Por qué estudias tanto<br />y olvidas igual?",
-    problem_sub: "No es falta de esfuerzo. Es que llevas años usando métodos que se sienten productivos pero casi no dejan huella en tu memoria.",
-    prob1_tag: "Releer", prob1_title: "La ilusión de saber",
-    prob1_desc: "Releer te da una falsa sensación de dominio. El texto te resulta familiar, pero tu mente no lo ha tenido que recuperar. Familiaridad no es memoria.",
-    prob2_tag: "Subrayar", prob2_title: "Pintar no es aprender",
-    prob2_desc: "Subrayar es de las técnicas con menos impacto real en lo que recuerdas a largo plazo. Tú lo sabes: subrayas hoy y mañana no recuerdas qué subrayaste.",
-    prob3_tag: "Resumir", prob3_title: "Copiar sin pensar",
-    prob3_desc: "Resumir copiando frases del texto produce seguridad falsa y muy poca transferencia. El conocimiento se queda en la página, no en tu cabeza.",
-    prob_sol_title: "BrainMemora reemplaza lo que no funciona<br />por lo que <em>sí</em>",
-    prob_sol_desc: "Cada sesión te obliga a recuperar, explicar y aplicar lo que lees — las técnicas que la ciencia clasifica como de alta utilidad. No son opiniones: son décadas de investigación con cientos de miles de estudiantes.",
-    steps_tag: "Cómo funciona",
-    steps_title: "De la lectura al dominio en 3 pasos",
-    steps_sub: "Abre cualquier PDF, artículo o página web. BrainMemora aparece a tu lado y convierte lo que lees en una sesión de aprendizaje activo.",
-    step1_title: "Carga tu material",
-    step1_desc: "Abre un PDF, pega texto o activa BrainMemora sobre cualquier página web. La IA identifica los conceptos clave en segundos.",
-    step2_title: "Elige tu modo de estudio",
-    step2_desc: "Examen, Feynman, Lectura Activa, Repaso Espaciado y más. O deja que BrainMemora escoja la estrategia óptima para tu objetivo.",
-    step3_title: "Aprende con retroalimentación real",
-    step3_desc: "Respondes. La IA evalúa tu comprensión, te dice qué te faltó y arma un plan de repaso para que no lo olvides.",
-    pillars_tag: "El sistema",
-    pillars_title: "Lo que separa a quien <em>domina</em><br />de quien solo aprueba",
-    pillars_sub: "El estudiante promedio gasta la mayor parte de su tiempo en técnicas heredadas por costumbre. BrainMemora te saca del promedio con cuatro pilares de aprendizaje real.",
-    p1_title: "Extracción Activa", p1_sub: "Cuestionarios y práctica de recuperación",
-    p1_badge: "222 estudios · 48.478 estudiantes",
-    p1_desc: "Fuerza a tu mente a recuperar información desde cero, sin mirar el texto. El mayor análisis global sobre el tema —222 estudios y 48.478 estudiantes— concluyó que evaluarte a ti mismo es la herramienta individual más potente para rendir en exámenes. Quien se evalúa, domina.",
-    p1_cite: "Yang C. et al., Psychological Bulletin, 2021",
-    p2_title: "Comprensión Profunda", p2_sub: "Feynman y Elaboración Activa",
-    p2_badge: "Aprendizaje activo, no pasivo",
-    p2_desc: "Desarma el concepto y reescríbelo con tu propio vocabulario, como si se lo explicaras a alguien. Mientras el promedio subraya, tú activas la comprensión real. Estudiar de forma activa marca la diferencia entre entender y solo reconocer.",
-    p2_cite: "Freeman S. et al., PNAS, 2014 · Urrizola A. et al., Medical Teacher, 2023",
-    p3_title: "Contexto Aplicado", p3_sub: "Casos clínicos, legales o de negocio reales",
-    p3_badge: "80 ensayos controlados",
-    p3_desc: "Lleva la teoría al terreno resolviendo un caso clínico, un litigio legal o un reto de negocio real. Un análisis de 80 ensayos controlados encontró que el aprendizaje basado en casos es de los métodos más efectivos para dominar materias complejas. No estudies para el examen, estudia para el caso.",
-    p3_cite: "Zhang SL. et al., BMC Medical Education, 2024",
-    p4_title: "Explicación en Voz Alta", p4_sub: "Enseñar y debatir lo aprendido",
-    p4_badge: "El mayor efecto en formación avanzada",
-    p4_desc: "Explica el tema en voz alta como si enseñaras a un alumno, o contrástalo con un par. Explicar y debatir lo que aprendes está entre las prácticas con mayor efecto documentado en educación profesional. Es el catalizador del pensamiento crítico y la retención a largo plazo.",
-    p4_cite: "Huang PH. et al., Medical Teacher, 2019 · Bhuttah TM. et al., Scientific Reports, 2024",
-    meta_title: "Factor Exclusivo: Metacognición", meta_sub: "Tu auditor mental interno",
-    meta_badge: "92% de los estudiantes nunca la aplica",
-    meta_desc: "¿Por qué este sistema te pone por encima del promedio de inmediato? Porque está auditado por la metacognición: saber conscientemente qué dominas y qué no. Es la herramienta más poderosa para retener a largo plazo, y aun así el 92% de los estudiantes de alto nivel no sabe cómo aplicarla. Al usar BrainMemora accedes a una ventaja que casi todos ignoran. No estudias más horas; aplicas ingeniería del aprendizaje.",
-    meta_cite: "Urrizola A. et al., Medical Teacher, 2023 · D'Antoni AV. et al., Clinical Anatomy, 2019",
-    science_tag: "La evidencia",
-    science_title: "No es marketing.<br />Son números reales.",
-    science_sub: "Cada funcionalidad de BrainMemora se apoya en investigación publicada y revisada por otros científicos. Estas son las cifras detrás del método.",
-    ev1_label: "Estudios científicos revisados sobre práctica de recuperación",
-    ev2_label: "Estudiantes analizados — el mayor estudio global sobre el tema",
-    ev3_label: "Ensayos controlados sobre aprendizaje basado en casos reales",
-    ev4_label: "De los estudiantes de alto nivel no sabe aplicar la metacognición",
-    quote_text: "\"La ciencia lleva décadas diciéndolo: evaluarte a ti mismo de forma constante es la herramienta individual más potente para rendir en exámenes. No se trata de estudiar más horas, sino de estudiar de la forma correcta.\"",
-    quote_cite: "— Síntesis de Yang et al. (2021), Freeman et al. (2014) y Urrizola et al. (2023)",
-    aud_tag: "¿Para quién es?",
-    aud_title: "Para quien estudia en serio",
-    aud_sub: "Si te importa aprender de verdad y no solo aprobar, BrainMemora es para ti.",
-    aud1_idx: "01", aud1_title: "Profesionales en certificación", aud1_desc: "Médicos, abogados, contadores, ingenieros. Material denso, tiempo limitado, consecuencias altas.",
-    aud2_idx: "02", aud2_title: "Estudiantes de posgrado", aud2_desc: "Maestrías, doctorados, residencias. Varios PDFs a la vez, lectura técnica intensa.",
-    aud3_idx: "03", aud3_title: "Universitarios", aud3_desc: "Pregrado que quiere más que memorizar. Aprender a estudiar cambia toda la carrera.",
-    aud4_idx: "04", aud4_title: "Autodidactas", aud4_desc: "Idiomas, ciencias, habilidades técnicas. Si aprendes solo, necesitas un sistema que funcione.",
-    aud_note: "BrainMemora nació pensando en <strong>universitarios</strong>, pero el método sirve para cualquiera que necesite aprender de verdad: <strong>ingenieros, abogados, estudiantes de secundaria o primaria, opositores y autodidactas</strong>. Si tienes algo que estudiar, es para ti.",
-    trust1: "Cero retención de datos por la IA",
-    trust2: "Tus PDFs nunca se guardan en el servidor",
-    trust3: "Plan gratuito permanente — sin tarjeta",
-    trust4: "Creado por un médico internista",
-    price_tag: "Precios", price_title: "Comienza gratis, hoy",
-    price_sub: "Sin tarjeta. Sin letra pequeña. El plan gratuito es permanente.",
-    free_name: "Gratuito", free_desc: "Para siempre. Sin tarjeta de crédito.", free_cta: "Instalar gratis",
-    free_f1: "5 documentos PDF por mes", free_f2: "3 páginas web por día", free_f3: "Todos los modos de estudio",
-    free_f4: "Retroalimentación de IA", free_f5: "Español, Inglés, Portugués",
-    free_f6: "Repetición Espaciada avanzada", free_f7: "Documentos ilimitados",
-    pro_badge: "Próximamente", pro_name: "Pro",
-    pro_desc: "≈ 20.000 COP/mes · Pagado con Paddle (acepta tarjetas colombianas y LATAM).",
-    pro_cta: "Lista de espera →",
-    pro_f1: "Todo lo del plan gratuito", pro_f2: "Documentos ilimitados", pro_f3: "Repetición Espaciada completa",
-    pro_f4: "Dashboard metacognitivo completo", pro_f5: "Exportar a Anki, Notion, PDF",
-    pro_f6: "Soporte prioritario por email", pro_f7: "Idiomas adicionales",
-    faq_tag: "Preguntas frecuentes", faq_title: "Respuestas directas",
-    faq1_q: "¿Mis PDFs se guardan en algún servidor?",
-    faq1_a: "No. BrainMemora procesa tu material localmente en el navegador siempre que es posible. Cuando la IA necesita evaluar tu respuesta, solo se envían fragmentos de texto temporales. No guardamos copias de tus documentos. Tu material de estudio es privado.",
-    faq2_q: "¿La IA usa mis textos para entrenarse?",
-    faq2_a: "No. Usamos la API de Anthropic (Claude) bajo política de Cero Retención de Datos. Tan pronto como la IA genera la retroalimentación, el proveedor borra el contenido. Tus textos nunca se usan para entrenar modelos de inteligencia artificial.",
-    faq3_q: "¿Funciona con PDFs médicos o técnicos complejos?",
-    faq3_a: "Sí. BrainMemora fue diseñado por un médico internista precisamente para material académico denso y técnico. La IA calibra el nivel de complejidad y las preguntas se adaptan al contenido. Funciona bien con textos de medicina, derecho, ciencias, ingeniería y más.",
-    faq4_q: "¿Qué diferencia a BrainMemora de NotebookLM o ChatPDF?",
-    faq4_a: "NotebookLM y ChatPDF son herramientas de consulta pasiva — responden preguntas sobre tus documentos. BrainMemora es un motor pedagógico: conduce sesiones de aprendizaje activo, aplica metodologías científicas y genera un plan de retención personalizado. La diferencia es como comparar un buscador con un tutor.",
-    faq5_q: "¿Puedo usarlo si no soy de medicina?",
-    faq5_a: "Por supuesto. Las metodologías de aprendizaje que aplica BrainMemora son universales — funcionan para cualquier disciplina, nivel educativo e idioma. Si estudias cualquier cosa que requiera comprensión real (no solo memorización superficial), BrainMemora te sirve.",
-    faq6_q: "¿En qué países está disponible?",
-    faq6_a: "BrainMemora está disponible globalmente como extensión de Chrome. La interfaz está disponible en 5 idiomas: Español, English, Português, Français y Deutsch — usa el selector de idioma en la parte superior de esta página. Puedes estudiar documentos en cualquier idioma y recibir retroalimentación en tu idioma preferido.",
-    final_title: "Empieza a estudiar de la forma<br />que <em>sí</em> funciona",
-    final_sub: "Gratis. Sin tarjeta. La ciencia del aprendizaje en tu navegador desde el primer minuto.",
-    final_cta: "Instalar BrainMemora gratis en Chrome",
-    footer_about: "Asistente de aprendizaje basado en evidencia científica. Creado por un médico internista en Colombia para quienes quieren aprender de verdad.",
-    footer_product: "Producto", footer_how: "Cómo funciona", footer_pricing: "Precios", footer_install: "Instalar en Chrome",
-    footer_legal: "Legal", footer_privacy: "Política de Privacidad", footer_terms: "Términos de Servicio", footer_contact: "Contacto",
-    footer_copy: "© 2026 BrainMemora — Keyner Tatis · Colombia",
-    mobile_cta: "Instalar gratis en Chrome"
-  },
-
-  en: {
-    page_title: "BrainMemora — Turn what you read into knowledge that lasts",
-    nav_cta: "Install free →",
-    hero_badge: "Learning backed by thousands of real studies",
-    hero_h1: "Turn what you read into<br /><em>knowledge that lasts</em>",
-    hero_sub: "Not another chat for your PDFs. BrainMemora makes you study the way science proved actually works — the way almost no one uses, because it's harder than highlighting.",
-    hero_btn1: "Install on Chrome — it's free",
-    hero_btn2: "See how it works",
-    proof1: "<span class=\"num\">222</span> <strong>scientific studies</strong> reviewed",
-    proof2: "<span class=\"num\">48,478</span> <strong>students</strong> analyzed",
-    problem_tag: "The problem",
-    problem_title: "Why do you study so much<br />and forget anyway?",
-    problem_sub: "It's not a lack of effort. You've spent years using methods that feel productive but barely leave a trace in your memory.",
-    prob1_tag: "Rereading", prob1_title: "The illusion of knowing",
-    prob1_desc: "Rereading gives you a false sense of mastery. The text feels familiar, but your mind never had to retrieve it. Familiarity isn't memory.",
-    prob2_tag: "Highlighting", prob2_title: "Painting isn't learning",
-    prob2_desc: "Highlighting is among the techniques with the least real impact on long-term recall. You know it: you highlight today and forget what you highlighted tomorrow.",
-    prob3_tag: "Summarizing", prob3_title: "Copying without thinking",
-    prob3_desc: "Summarizing by copying phrases from the text creates false confidence and little transfer. The knowledge stays on the page, not in your head.",
-    prob_sol_title: "BrainMemora replaces what doesn't work<br />with what <em>does</em>",
-    prob_sol_desc: "Every session forces you to retrieve, explain and apply what you read — the techniques science classifies as high-utility. Not opinions: decades of research with hundreds of thousands of students.",
-    steps_tag: "How it works",
-    steps_title: "From reading to mastery in 3 steps",
-    steps_sub: "Open any PDF, article or web page. BrainMemora appears at your side and turns what you read into an active learning session.",
-    step1_title: "Load your material",
-    step1_desc: "Open a PDF, paste text or activate BrainMemora over any web page. The AI identifies the key concepts in seconds.",
-    step2_title: "Choose your study mode",
-    step2_desc: "Exam, Feynman, Active Reading, Spaced Review and more. Or let BrainMemora pick the optimal strategy for your goal.",
-    step3_title: "Learn with real feedback",
-    step3_desc: "You answer. The AI evaluates your understanding, tells you what you missed and builds a review plan so you don't forget it.",
-    pillars_tag: "The system",
-    pillars_title: "What separates those who <em>master</em><br />from those who just pass",
-    pillars_sub: "The average student spends most of their time on habit-driven techniques. BrainMemora lifts you above average with four pillars of real learning.",
-    p1_title: "Active Retrieval", p1_sub: "Quizzes and retrieval practice",
-    p1_badge: "222 studies · 48,478 students",
-    p1_desc: "Force your mind to retrieve information from scratch, without looking at the text. The largest global analysis on the topic —222 studies and 48,478 students— concluded that testing yourself is the single most powerful tool for exam performance. Those who test themselves, master.",
-    p1_cite: "Yang C. et al., Psychological Bulletin, 2021",
-    p2_title: "Deep Understanding", p2_sub: "Feynman and Active Elaboration",
-    p2_badge: "Active learning, not passive",
-    p2_desc: "Break down the concept and rewrite it in your own words, as if explaining it to someone. While the average student highlights, you activate real understanding. Studying actively is the difference between understanding and merely recognizing.",
-    p2_cite: "Freeman S. et al., PNAS, 2014 · Urrizola A. et al., Medical Teacher, 2023",
-    p3_title: "Applied Context", p3_sub: "Real clinical, legal or business cases",
-    p3_badge: "80 controlled trials",
-    p3_desc: "Take theory into the real world by solving a clinical case, a legal dispute or a real business challenge. An analysis of 80 controlled trials found that case-based learning is among the most effective methods for mastering complex subjects. Don't study for the exam, study for the case.",
-    p3_cite: "Zhang SL. et al., BMC Medical Education, 2024",
-    p4_title: "Verbal Explanation", p4_sub: "Teaching and debating what you learn",
-    p4_badge: "The greatest effect in advanced education",
-    p4_desc: "Explain the topic out loud as if teaching a student, or test it against a peer. Explaining and debating what you learn is among the practices with the greatest documented effect in professional education. It's the catalyst for critical thinking and long-term retention.",
-    p4_cite: "Huang PH. et al., Medical Teacher, 2019 · Bhuttah TM. et al., Scientific Reports, 2024",
-    meta_title: "Exclusive Factor: Metacognition", meta_sub: "Your internal mental auditor",
-    meta_badge: "92% of students never apply it",
-    meta_desc: "Why does this system put you above average immediately? Because it's audited by metacognition: consciously knowing what you've mastered and what you haven't. It's the most powerful tool for long-term retention, yet 92% of high-level students don't know how to apply it. With BrainMemora you access an advantage almost everyone ignores. You don't study more hours; you apply learning engineering.",
-    meta_cite: "Urrizola A. et al., Medical Teacher, 2023 · D'Antoni AV. et al., Clinical Anatomy, 2019",
-    science_tag: "The evidence",
-    science_title: "It's not marketing.<br />They're real numbers.",
-    science_sub: "Every BrainMemora feature rests on published, peer-reviewed research. These are the numbers behind the method.",
-    ev1_label: "Scientific studies reviewed on retrieval practice",
-    ev2_label: "Students analyzed — the largest global study on the topic",
-    ev3_label: "Controlled trials on case-based learning",
-    ev4_label: "Of high-level students don't know how to apply metacognition",
-    quote_text: "\"Science has been saying it for decades: testing yourself consistently is the single most powerful tool for exam performance. It's not about studying more hours, but about studying the right way.\"",
-    quote_cite: "— Synthesis of Yang et al. (2021), Freeman et al. (2014) and Urrizola et al. (2023)",
-    aud_tag: "Who is it for?",
-    aud_title: "For those who study seriously",
-    aud_sub: "If you care about really learning and not just passing, BrainMemora is for you.",
-    aud1_idx: "01", aud1_title: "Professionals in certification", aud1_desc: "Doctors, lawyers, accountants, engineers. Dense material, limited time, high stakes.",
-    aud2_idx: "02", aud2_title: "Graduate students", aud2_desc: "Master's, PhDs, residencies. Several PDFs at once, intense technical reading.",
-    aud3_idx: "03", aud3_title: "Undergraduates", aud3_desc: "Those who want more than memorizing. Learning how to study changes the whole degree.",
-    aud4_idx: "04", aud4_title: "Self-learners", aud4_desc: "Languages, sciences, technical skills. If you learn alone, you need a system that works.",
-    aud_note: "BrainMemora was born with <strong>university students</strong> in mind, but the method works for anyone who needs to truly learn: <strong>engineers, lawyers, high school or primary students, exam candidates and self-learners</strong>. If you have something to study, it's for you.",
-    trust1: "Zero data retention by AI",
-    trust2: "Your PDFs are never stored on the server",
-    trust3: "Permanent free plan — no credit card",
-    trust4: "Created by an internist physician",
-    price_tag: "Pricing", price_title: "Start free, today",
-    price_sub: "No card. No fine print. The free plan is permanent.",
-    free_name: "Free", free_desc: "Forever. No credit card.", free_cta: "Install free",
-    free_f1: "5 PDF documents per month", free_f2: "3 web pages per day", free_f3: "All study modes",
-    free_f4: "AI feedback", free_f5: "Spanish, English, Portuguese",
-    free_f6: "Advanced Spaced Repetition", free_f7: "Unlimited documents",
-    pro_badge: "Coming soon", pro_name: "Pro",
-    pro_desc: "≈ $5 USD/month · Paid securely via Paddle (accepts cards worldwide).",
-    pro_cta: "Join waitlist →",
-    pro_f1: "Everything in Free", pro_f2: "Unlimited documents", pro_f3: "Full Spaced Repetition",
-    pro_f4: "Complete metacognitive dashboard", pro_f5: "Export to Anki, Notion, PDF",
-    pro_f6: "Priority email support", pro_f7: "Additional languages",
-    faq_tag: "Frequently asked questions", faq_title: "Direct answers",
-    faq1_q: "Are my PDFs stored on any server?",
-    faq1_a: "No. BrainMemora processes your material locally in the browser whenever possible. When the AI needs to evaluate your answer, only temporary text fragments are sent. We don't keep copies of your documents. Your study material is private.",
-    faq2_q: "Does the AI use my texts to train itself?",
-    faq2_a: "No. We use Anthropic's API (Claude) under a Zero Data Retention policy. As soon as the AI generates feedback, the provider deletes the content. Your texts are never used to train AI models.",
-    faq3_q: "Does it work with complex medical or technical PDFs?",
-    faq3_a: "Yes. BrainMemora was designed by an internist physician precisely for dense, technical academic material. The AI calibrates the complexity level and questions adapt to the content. It works well with medicine, law, sciences, engineering and more.",
-    faq4_q: "What makes BrainMemora different from NotebookLM or ChatPDF?",
-    faq4_a: "NotebookLM and ChatPDF are passive query tools — they answer questions about your documents. BrainMemora is a pedagogical engine: it runs active learning sessions, applies scientific methodologies and generates a personalized retention plan. The difference is like comparing a search engine to a tutor.",
-    faq5_q: "Can I use it if I'm not in medicine?",
-    faq5_a: "Of course. The learning methodologies BrainMemora applies are universal — they work for any discipline, education level and language. If you study anything that requires real understanding (not just surface memorization), BrainMemora is for you.",
-    faq6_q: "Which countries is it available in?",
-    faq6_a: "BrainMemora is available globally as a Chrome extension. The interface is available in 5 languages: Español, English, Português, Français and Deutsch — use the language selector at the top of this page. You can study documents in any language and receive feedback in your preferred language.",
-    final_title: "Start studying the way<br />that <em>actually</em> works",
-    final_sub: "Free. No card. The science of learning in your browser from the first minute.",
-    final_cta: "Install BrainMemora free on Chrome",
-    footer_about: "Evidence-based learning assistant. Created by an internist physician in Colombia for those who want to truly learn.",
-    footer_product: "Product", footer_how: "How it works", footer_pricing: "Pricing", footer_install: "Install on Chrome",
-    footer_legal: "Legal", footer_privacy: "Privacy Policy", footer_terms: "Terms of Service", footer_contact: "Contact",
-    footer_copy: "© 2026 BrainMemora — Keyner Tatis · Colombia",
-    mobile_cta: "Install BrainMemora free on Chrome"
-  },
-
-  pt: {
-    page_title: "BrainMemora — Transforme o que lê em conhecimento que dura",
-    nav_cta: "Instalar grátis →",
-    hero_badge: "Aprendizado apoiado por milhares de estudos reais",
-    hero_h1: "Transforme o que lê em<br /><em>conhecimento que dura</em>",
-    hero_sub: "Não é mais um chat para seus PDFs. O BrainMemora faz você estudar do jeito que a ciência provou que funciona — o jeito que quase ninguém usa, porque dá mais trabalho que grifar.",
-    hero_btn1: "Instalar no Chrome — é grátis",
-    hero_btn2: "Ver como funciona",
-    proof1: "<span class=\"num\">222</span> <strong>estudos científicos</strong> revisados",
-    proof2: "<span class=\"num\">48.478</span> <strong>alunos</strong> analisados",
-    problem_tag: "O problema",
-    problem_title: "Por que você estuda tanto<br />e esquece do mesmo jeito?",
-    problem_sub: "Não é falta de esforço. Faz anos que você usa métodos que parecem produtivos mas quase não deixam marca na sua memória.",
-    prob1_tag: "Reler", prob1_title: "A ilusão de saber",
-    prob1_desc: "Reler dá uma falsa sensação de domínio. O texto parece familiar, mas sua mente nunca precisou recuperá-lo. Familiaridade não é memória.",
-    prob2_tag: "Grifar", prob2_title: "Pintar não é aprender",
-    prob2_desc: "Grifar é uma das técnicas com menor impacto real no que você lembra a longo prazo. Você sabe: grifa hoje e amanhã não lembra o que grifou.",
-    prob3_tag: "Resumir", prob3_title: "Copiar sem pensar",
-    prob3_desc: "Resumir copiando frases do texto gera falsa segurança e pouca transferência. O conhecimento fica na página, não na sua cabeça.",
-    prob_sol_title: "O BrainMemora troca o que não funciona<br />pelo que <em>funciona</em>",
-    prob_sol_desc: "Cada sessão te obriga a recuperar, explicar e aplicar o que lê — as técnicas que a ciência classifica como de alta utilidade. Não são opiniões: são décadas de pesquisa com centenas de milhares de alunos.",
-    steps_tag: "Como funciona",
-    steps_title: "Da leitura ao domínio em 3 passos",
-    steps_sub: "Abra qualquer PDF, artigo ou página web. O BrainMemora aparece ao seu lado e transforma o que você lê numa sessão de aprendizado ativo.",
-    step1_title: "Carregue seu material",
-    step1_desc: "Abra um PDF, cole texto ou ative o BrainMemora sobre qualquer página web. A IA identifica os conceitos-chave em segundos.",
-    step2_title: "Escolha seu modo de estudo",
-    step2_desc: "Prova, Feynman, Leitura Ativa, Revisão Espaçada e mais. Ou deixe o BrainMemora escolher a estratégia ideal para seu objetivo.",
-    step3_title: "Aprenda com feedback real",
-    step3_desc: "Você responde. A IA avalia sua compreensão, diz o que faltou e monta um plano de revisão para você não esquecer.",
-    pillars_tag: "O sistema",
-    pillars_title: "O que separa quem <em>domina</em><br />de quem só passa",
-    pillars_sub: "O estudante médio gasta a maior parte do tempo em técnicas herdadas pelo hábito. O BrainMemora te tira da média com quatro pilares de aprendizado real.",
-    p1_title: "Extração Ativa", p1_sub: "Testes e prática de recuperação",
-    p1_badge: "222 estudos · 48.478 alunos",
-    p1_desc: "Force sua mente a recuperar informações do zero, sem olhar o texto. A maior análise global sobre o tema —222 estudos e 48.478 alunos— concluiu que se autoavaliar é a ferramenta individual mais poderosa para o desempenho em provas. Quem se avalia, domina.",
-    p1_cite: "Yang C. et al., Psychological Bulletin, 2021",
-    p2_title: "Compreensão Profunda", p2_sub: "Feynman e Elaboração Ativa",
-    p2_badge: "Aprendizado ativo, não passivo",
-    p2_desc: "Desmonte o conceito e reescreva com suas próprias palavras, como se explicasse a alguém. Enquanto a média grifa, você ativa a compreensão real. Estudar de forma ativa é a diferença entre entender e apenas reconhecer.",
-    p2_cite: "Freeman S. et al., PNAS, 2014 · Urrizola A. et al., Medical Teacher, 2023",
-    p3_title: "Contexto Aplicado", p3_sub: "Casos clínicos, jurídicos ou de negócios reais",
-    p3_badge: "80 ensaios controlados",
-    p3_desc: "Leve a teoria para a prática resolvendo um caso clínico, um litígio jurídico ou um desafio de negócio real. Uma análise de 80 ensaios controlados encontrou que o aprendizado baseado em casos está entre os métodos mais eficazes para dominar matérias complexas. Não estude para a prova, estude para o caso.",
-    p3_cite: "Zhang SL. et al., BMC Medical Education, 2024",
-    p4_title: "Explicação em Voz Alta", p4_sub: "Ensinar e debater o aprendido",
-    p4_badge: "O maior efeito na educação avançada",
-    p4_desc: "Explique o tema em voz alta como se ensinasse um aluno, ou confronte com um colega. Explicar e debater o que você aprende está entre as práticas com maior efeito documentado na educação profissional. É o catalisador do pensamento crítico e da retenção a longo prazo.",
-    p4_cite: "Huang PH. et al., Medical Teacher, 2019 · Bhuttah TM. et al., Scientific Reports, 2024",
-    meta_title: "Fator Exclusivo: Metacognição", meta_sub: "Seu auditor mental interno",
-    meta_badge: "92% dos estudantes nunca a aplica",
-    meta_desc: "Por que este sistema te coloca acima da média imediatamente? Porque é auditado pela metacognição: saber conscientemente o que você domina e o que não. É a ferramenta mais poderosa para reter a longo prazo, e mesmo assim 92% dos estudantes de alto nível não sabe aplicá-la. Com o BrainMemora você acessa uma vantagem que quase todos ignoram. Você não estuda mais horas; aplica engenharia do aprendizado.",
-    meta_cite: "Urrizola A. et al., Medical Teacher, 2023 · D'Antoni AV. et al., Clinical Anatomy, 2019",
-    science_tag: "A evidência",
-    science_title: "Não é marketing.<br />São números reais.",
-    science_sub: "Cada funcionalidade do BrainMemora se apoia em pesquisa publicada e revisada por outros cientistas. Estes são os números por trás do método.",
-    ev1_label: "Estudos científicos revisados sobre prática de recuperação",
-    ev2_label: "Alunos analisados — o maior estudo global sobre o tema",
-    ev3_label: "Ensaios controlados sobre aprendizado baseado em casos",
-    ev4_label: "Dos estudantes de alto nível não sabe aplicar a metacognição",
-    quote_text: "\"A ciência vem dizendo há décadas: se autoavaliar de forma constante é a ferramenta individual mais poderosa para o desempenho em provas. Não se trata de estudar mais horas, mas de estudar do jeito certo.\"",
-    quote_cite: "— Síntese de Yang et al. (2021), Freeman et al. (2014) e Urrizola et al. (2023)",
-    aud_tag: "Para quem é?",
-    aud_title: "Para quem estuda a sério",
-    aud_sub: "Se você quer aprender de verdade e não só passar, o BrainMemora é para você.",
-    aud1_idx: "01", aud1_title: "Profissionais em certificação", aud1_desc: "Médicos, advogados, contadores, engenheiros. Material denso, tempo limitado, consequências altas.",
-    aud2_idx: "02", aud2_title: "Estudantes de pós-graduação", aud2_desc: "Mestrados, doutorados, residências. Vários PDFs ao mesmo tempo, leitura técnica intensa.",
-    aud3_idx: "03", aud3_title: "Universitários", aud3_desc: "Graduação que quer mais que memorizar. Aprender a estudar muda toda a carreira.",
-    aud4_idx: "04", aud4_title: "Autodidatas", aud4_desc: "Idiomas, ciências, habilidades técnicas. Se você aprende sozinho, precisa de um sistema que funcione.",
-    aud_note: "O BrainMemora nasceu pensando em <strong>universitários</strong>, mas o método serve para qualquer um que precise aprender de verdade: <strong>engenheiros, advogados, estudantes do ensino médio ou fundamental, concurseiros e autodidatas</strong>. Se você tem algo para estudar, é para você.",
-    trust1: "Zero retenção de dados pela IA",
-    trust2: "Seus PDFs nunca são armazenados no servidor",
-    trust3: "Plano gratuito permanente — sem cartão",
-    trust4: "Criado por um médico internista",
-    price_tag: "Preços", price_title: "Comece grátis, hoje",
-    price_sub: "Sem cartão. Sem letras miúdas. O plano gratuito é permanente.",
-    free_name: "Gratuito", free_desc: "Para sempre. Sem cartão de crédito.", free_cta: "Instalar grátis",
-    free_f1: "5 documentos PDF por mês", free_f2: "3 páginas web por dia", free_f3: "Todos os modos de estudo",
-    free_f4: "Feedback de IA", free_f5: "Espanhol, Inglês, Português",
-    free_f6: "Revisão Espaçada avançada", free_f7: "Documentos ilimitados",
-    pro_badge: "Em breve", pro_name: "Pro",
-    pro_desc: "≈ R$25/mês · Pago com segurança via Paddle (aceita cartões do Brasil e LATAM).",
-    pro_cta: "Lista de espera →",
-    pro_f1: "Tudo do plano gratuito", pro_f2: "Documentos ilimitados", pro_f3: "Revisão Espaçada completa",
-    pro_f4: "Dashboard metacognitivo completo", pro_f5: "Exportar para Anki, Notion, PDF",
-    pro_f6: "Suporte prioritário por email", pro_f7: "Idiomas adicionais",
-    faq_tag: "Perguntas frequentes", faq_title: "Respostas diretas",
-    faq1_q: "Meus PDFs são armazenados em algum servidor?",
-    faq1_a: "Não. O BrainMemora processa seu material localmente no navegador sempre que possível. Quando a IA precisa avaliar sua resposta, apenas fragmentos de texto temporários são enviados. Não guardamos cópias dos seus documentos. Seu material de estudo é privado.",
-    faq2_q: "A IA usa meus textos para se treinar?",
-    faq2_a: "Não. Usamos a API da Anthropic (Claude) sob política de Zero Retenção de Dados. Assim que a IA gera o feedback, o provedor apaga o conteúdo. Seus textos nunca são usados para treinar modelos de IA.",
-    faq3_q: "Funciona com PDFs médicos ou técnicos complexos?",
-    faq3_a: "Sim. O BrainMemora foi projetado por um médico internista justamente para material acadêmico denso e técnico. A IA calibra o nível de complexidade e as perguntas se adaptam ao conteúdo. Funciona bem com medicina, direito, ciências, engenharia e mais.",
-    faq4_q: "O que diferencia o BrainMemora do NotebookLM ou ChatPDF?",
-    faq4_a: "NotebookLM e ChatPDF são ferramentas de consulta passiva — respondem perguntas sobre seus documentos. O BrainMemora é um motor pedagógico: conduz sessões de aprendizado ativo, aplica metodologias científicas e gera um plano de retenção personalizado. A diferença é como comparar um buscador a um tutor.",
-    faq5_q: "Posso usar se não sou da medicina?",
-    faq5_a: "Claro. As metodologias de aprendizado que o BrainMemora aplica são universais — funcionam para qualquer disciplina, nível educacional e idioma. Se você estuda algo que exige compreensão real (não só memorização superficial), o BrainMemora serve para você.",
-    faq6_q: "Em quais países está disponível?",
-    faq6_a: "O BrainMemora está disponível globalmente como extensão do Chrome. A interface está disponível em 5 idiomas: Español, English, Português, Français e Deutsch — use o seletor de idioma no topo desta página. Você pode estudar documentos em qualquer idioma e receber feedback no idioma de sua preferência.",
-    final_title: "Comece a estudar do jeito<br />que <em>realmente</em> funciona",
-    final_sub: "Grátis. Sem cartão. A ciência do aprendizado no seu navegador desde o primeiro minuto.",
-    final_cta: "Instalar BrainMemora grátis no Chrome",
-    footer_about: "Assistente de aprendizado baseado em evidência científica. Criado por um médico internista na Colômbia para quem quer aprender de verdade.",
-    footer_product: "Produto", footer_how: "Como funciona", footer_pricing: "Preços", footer_install: "Instalar no Chrome",
-    footer_legal: "Legal", footer_privacy: "Política de Privacidade", footer_terms: "Termos de Serviço", footer_contact: "Contato",
-    footer_copy: "© 2026 BrainMemora — Keyner Tatis · Colômbia",
-    mobile_cta: "Instalar BrainMemora grátis no Chrome"
-  },
-
-  fr: {
-    page_title: "BrainMemora — Transformez vos lectures en savoir qui dure",
-    nav_cta: "Installer gratuit →",
-    hero_badge: "Un apprentissage appuyé par des milliers d'études réelles",
-    hero_h1: "Transformez vos lectures en<br /><em>savoir qui dure</em>",
-    hero_sub: "Pas un énième chat pour vos PDF. BrainMemora vous fait étudier de la façon que la science a prouvée efficace — celle que presque personne n'utilise, car elle demande plus d'effort que surligner.",
-    hero_btn1: "Installer sur Chrome — c'est gratuit",
-    hero_btn2: "Voir comment ça marche",
-    proof1: "<span class=\"num\">222</span> <strong>études scientifiques</strong> examinées",
-    proof2: "<span class=\"num\">48 478</span> <strong>étudiants</strong> analysés",
-    problem_tag: "Le problème",
-    problem_title: "Pourquoi étudier autant<br />et oublier quand même ?",
-    problem_sub: "Ce n'est pas un manque d'effort. Depuis des années vous utilisez des méthodes qui semblent productives mais ne laissent presque aucune trace en mémoire.",
-    prob1_tag: "Relire", prob1_title: "L'illusion de savoir",
-    prob1_desc: "Relire donne une fausse impression de maîtrise. Le texte vous semble familier, mais votre esprit n'a jamais eu à le récupérer. La familiarité n'est pas la mémoire.",
-    prob2_tag: "Surligner", prob2_title: "Colorier n'est pas apprendre",
-    prob2_desc: "Surligner est parmi les techniques au plus faible impact réel sur ce dont vous vous souvenez à long terme. Vous le savez : vous surlignez aujourd'hui et oubliez demain.",
-    prob3_tag: "Résumer", prob3_title: "Copier sans réfléchir",
-    prob3_desc: "Résumer en copiant des phrases du texte crée une fausse assurance et peu de transfert. Le savoir reste sur la page, pas dans votre tête.",
-    prob_sol_title: "BrainMemora remplace ce qui ne marche pas<br />par ce qui <em>marche</em>",
-    prob_sol_desc: "Chaque session vous oblige à récupérer, expliquer et appliquer ce que vous lisez — les techniques que la science classe comme à haute utilité. Pas des opinions : des décennies de recherche avec des centaines de milliers d'étudiants.",
-    steps_tag: "Comment ça marche",
-    steps_title: "De la lecture à la maîtrise en 3 étapes",
-    steps_sub: "Ouvrez n'importe quel PDF, article ou page web. BrainMemora apparaît à vos côtés et transforme votre lecture en session d'apprentissage actif.",
-    step1_title: "Chargez votre matériel",
-    step1_desc: "Ouvrez un PDF, collez du texte ou activez BrainMemora sur n'importe quelle page web. L'IA identifie les concepts clés en quelques secondes.",
-    step2_title: "Choisissez votre mode d'étude",
-    step2_desc: "Examen, Feynman, Lecture Active, Révision Espacée et plus. Ou laissez BrainMemora choisir la stratégie optimale pour votre objectif.",
-    step3_title: "Apprenez avec un vrai retour",
-    step3_desc: "Vous répondez. L'IA évalue votre compréhension, vous dit ce qui manquait et construit un plan de révision pour ne pas oublier.",
-    pillars_tag: "Le système",
-    pillars_title: "Ce qui sépare ceux qui <em>maîtrisent</em><br />de ceux qui passent juste",
-    pillars_sub: "L'étudiant moyen passe l'essentiel de son temps sur des techniques d'habitude. BrainMemora vous élève au-dessus de la moyenne avec quatre piliers d'apprentissage réel.",
-    p1_title: "Récupération Active", p1_sub: "Quiz et pratique de rappel",
-    p1_badge: "222 études · 48 478 étudiants",
-    p1_desc: "Forcez votre esprit à récupérer l'information de zéro, sans regarder le texte. La plus grande analyse mondiale sur le sujet —222 études et 48 478 étudiants— a conclu que s'auto-évaluer est l'outil individuel le plus puissant pour la performance aux examens. Qui s'évalue, maîtrise.",
-    p1_cite: "Yang C. et al., Psychological Bulletin, 2021",
-    p2_title: "Compréhension Profonde", p2_sub: "Feynman et Élaboration Active",
-    p2_badge: "Apprentissage actif, pas passif",
-    p2_desc: "Déconstruisez le concept et réécrivez-le avec vos propres mots, comme si vous l'expliquiez à quelqu'un. Pendant que la moyenne surligne, vous activez la vraie compréhension. Étudier activement fait la différence entre comprendre et simplement reconnaître.",
-    p2_cite: "Freeman S. et al., PNAS, 2014 · Urrizola A. et al., Medical Teacher, 2023",
-    p3_title: "Contexte Appliqué", p3_sub: "Cas cliniques, juridiques ou professionnels réels",
-    p3_badge: "80 essais contrôlés",
-    p3_desc: "Portez la théorie dans la pratique en résolvant un cas clinique, un litige juridique ou un défi professionnel réel. Une analyse de 80 essais contrôlés a montré que l'apprentissage par cas est parmi les méthodes les plus efficaces pour maîtriser des matières complexes. N'étudiez pas pour l'examen, étudiez pour le cas.",
-    p3_cite: "Zhang SL. et al., BMC Medical Education, 2024",
-    p4_title: "Explication à Voix Haute", p4_sub: "Enseigner et débattre ce qu'on apprend",
-    p4_badge: "Le plus grand effet en formation avancée",
-    p4_desc: "Expliquez le sujet à voix haute comme si vous enseigniez à un élève, ou confrontez-le à un pair. Expliquer et débattre ce qu'on apprend est parmi les pratiques au plus grand effet documenté en formation professionnelle. C'est le catalyseur de la pensée critique et de la rétention à long terme.",
-    p4_cite: "Huang PH. et al., Medical Teacher, 2019 · Bhuttah TM. et al., Scientific Reports, 2024",
-    meta_title: "Facteur Exclusif : Métacognition", meta_sub: "Votre auditeur mental interne",
-    meta_badge: "92% des étudiants ne l'appliquent jamais",
-    meta_desc: "Pourquoi ce système vous place-t-il immédiatement au-dessus de la moyenne ? Parce qu'il est audité par la métacognition : savoir consciemment ce que vous maîtrisez et ce que vous ne maîtrisez pas. C'est l'outil le plus puissant pour la rétention à long terme, et pourtant 92% des étudiants de haut niveau ne savent pas l'appliquer. Avec BrainMemora, vous accédez à un avantage que presque tous ignorent. Vous n'étudiez pas plus d'heures ; vous appliquez l'ingénierie de l'apprentissage.",
-    meta_cite: "Urrizola A. et al., Medical Teacher, 2023 · D'Antoni AV. et al., Clinical Anatomy, 2019",
-    science_tag: "La preuve",
-    science_title: "Ce n'est pas du marketing.<br />Ce sont de vrais chiffres.",
-    science_sub: "Chaque fonctionnalité de BrainMemora repose sur des recherches publiées et évaluées par des pairs. Voici les chiffres derrière la méthode.",
-    ev1_label: "Études scientifiques examinées sur la pratique de rappel",
-    ev2_label: "Étudiants analysés — la plus grande étude mondiale sur le sujet",
-    ev3_label: "Essais contrôlés sur l'apprentissage par cas",
-    ev4_label: "Des étudiants de haut niveau ne savent pas appliquer la métacognition",
-    quote_text: "\"La science le dit depuis des décennies : s'auto-évaluer constamment est l'outil individuel le plus puissant pour la performance aux examens. Il ne s'agit pas d'étudier plus d'heures, mais d'étudier de la bonne façon.\"",
-    quote_cite: "— Synthèse de Yang et al. (2021), Freeman et al. (2014) et Urrizola et al. (2023)",
-    aud_tag: "Pour qui ?",
-    aud_title: "Pour ceux qui étudient sérieusement",
-    aud_sub: "Si vous tenez à vraiment apprendre et pas seulement à réussir, BrainMemora est pour vous.",
-    aud1_idx: "01", aud1_title: "Professionnels en certification", aud1_desc: "Médecins, avocats, comptables, ingénieurs. Matière dense, temps limité, enjeux élevés.",
-    aud2_idx: "02", aud2_title: "Étudiants en master/doctorat", aud2_desc: "Masters, doctorats, internats. Plusieurs PDF à la fois, lecture technique intense.",
-    aud3_idx: "03", aud3_title: "Étudiants universitaires", aud3_desc: "Ceux qui veulent plus que mémoriser. Apprendre à étudier change tout le cursus.",
-    aud4_idx: "04", aud4_title: "Autodidactes", aud4_desc: "Langues, sciences, compétences techniques. Si vous apprenez seul, il vous faut un système qui marche.",
-    aud_note: "BrainMemora est né en pensant aux <strong>étudiants universitaires</strong>, mais la méthode sert à quiconque doit vraiment apprendre : <strong>ingénieurs, avocats, lycéens ou écoliers, candidats aux concours et autodidactes</strong>. Si vous avez quelque chose à étudier, c'est pour vous.",
-    trust1: "Zéro rétention de données par l'IA",
-    trust2: "Vos PDF ne sont jamais stockés sur le serveur",
-    trust3: "Plan gratuit permanent — sans carte bancaire",
-    trust4: "Créé par un médecin interniste",
-    price_tag: "Tarifs", price_title: "Commencez gratuitement, aujourd'hui",
-    price_sub: "Sans carte. Sans petits caractères. Le plan gratuit est permanent.",
-    free_name: "Gratuit", free_desc: "Pour toujours. Sans carte bancaire.", free_cta: "Installer gratuit",
-    free_f1: "5 documents PDF par mois", free_f2: "3 pages web par jour", free_f3: "Tous les modes d'étude",
-    free_f4: "Retour de l'IA", free_f5: "Espagnol, Anglais, Portugais",
-    free_f6: "Répétition Espacée avancée", free_f7: "Documents illimités",
-    pro_badge: "Bientôt", pro_name: "Pro",
-    pro_desc: "≈ 5$/mois · Paiement sécurisé via Paddle (accepte les cartes internationales).",
-    pro_cta: "Liste d'attente →",
-    pro_f1: "Tout du plan gratuit", pro_f2: "Documents illimités", pro_f3: "Répétition Espacée complète",
-    pro_f4: "Tableau de bord métacognitif complet", pro_f5: "Export vers Anki, Notion, PDF",
-    pro_f6: "Support prioritaire par email", pro_f7: "Langues supplémentaires",
-    faq_tag: "Questions fréquentes", faq_title: "Réponses directes",
-    faq1_q: "Mes PDF sont-ils stockés sur un serveur ?",
-    faq1_a: "Non. BrainMemora traite votre matériel localement dans le navigateur dès que possible. Quand l'IA doit évaluer votre réponse, seuls des fragments de texte temporaires sont envoyés. Nous ne gardons pas de copies de vos documents. Votre matériel d'étude est privé.",
-    faq2_q: "L'IA utilise-t-elle mes textes pour s'entraîner ?",
-    faq2_a: "Non. Nous utilisons l'API d'Anthropic (Claude) sous une politique de Zéro Rétention de Données. Dès que l'IA génère le retour, le fournisseur supprime le contenu. Vos textes ne servent jamais à entraîner des modèles d'IA.",
-    faq3_q: "Fonctionne-t-il avec des PDF médicaux ou techniques complexes ?",
-    faq3_a: "Oui. BrainMemora a été conçu par un médecin interniste précisément pour du matériel académique dense et technique. L'IA calibre le niveau de complexité et les questions s'adaptent au contenu. Il fonctionne bien avec la médecine, le droit, les sciences, l'ingénierie et plus.",
-    faq4_q: "Qu'est-ce qui distingue BrainMemora de NotebookLM ou ChatPDF ?",
-    faq4_a: "NotebookLM et ChatPDF sont des outils de consultation passive — ils répondent à des questions sur vos documents. BrainMemora est un moteur pédagogique : il mène des sessions d'apprentissage actif, applique des méthodologies scientifiques et génère un plan de rétention personnalisé. La différence est comme comparer un moteur de recherche à un tuteur.",
-    faq5_q: "Puis-je l'utiliser si je ne suis pas en médecine ?",
-    faq5_a: "Bien sûr. Les méthodologies d'apprentissage de BrainMemora sont universelles — elles fonctionnent pour toute discipline, niveau et langue. Si vous étudiez quoi que ce soit qui demande une vraie compréhension (pas juste de la mémorisation), BrainMemora est pour vous.",
-    faq6_q: "Dans quels pays est-il disponible ?",
-    faq6_a: "BrainMemora est disponible mondialement en tant qu'extension Chrome. L'interface est disponible en 5 langues : Español, English, Português, Français et Deutsch — utilisez le sélecteur de langue en haut de cette page. Vous pouvez étudier des documents dans n'importe quelle langue et recevoir un retour dans la langue de votre choix.",
-    final_title: "Commencez à étudier de la façon<br />qui <em>marche vraiment</em>",
-    final_sub: "Gratuit. Sans carte. La science de l'apprentissage dans votre navigateur dès la première minute.",
-    final_cta: "Installer BrainMemora gratuit sur Chrome",
-    footer_about: "Assistant d'apprentissage fondé sur des preuves scientifiques. Créé par un médecin interniste en Colombie pour ceux qui veulent vraiment apprendre.",
-    footer_product: "Produit", footer_how: "Comment ça marche", footer_pricing: "Tarifs", footer_install: "Installer sur Chrome",
-    footer_legal: "Légal", footer_privacy: "Politique de Confidentialité", footer_terms: "Conditions d'Utilisation", footer_contact: "Contact",
-    footer_copy: "© 2026 BrainMemora — Keyner Tatis · Colombie",
-    mobile_cta: "Installer BrainMemora gratuit sur Chrome"
-  },
-
-  de: {
-    page_title: "BrainMemora — Wandle Gelesenes in Wissen, das bleibt",
-    nav_cta: "Kostenlos installieren →",
-    hero_badge: "Lernen, gestützt auf Tausende echte Studien",
-    hero_h1: "Wandle Gelesenes in<br /><em>Wissen, das bleibt</em>",
-    hero_sub: "Kein weiterer Chat für deine PDFs. BrainMemora bringt dich dazu, so zu lernen, wie die Wissenschaft es bewiesen hat — so, wie es fast niemand tut, weil es anstrengender ist als Markieren.",
-    hero_btn1: "In Chrome installieren — kostenlos",
-    hero_btn2: "So funktioniert es",
-    proof1: "<span class=\"num\">222</span> <strong>wissenschaftliche Studien</strong> geprüft",
-    proof2: "<span class=\"num\">48.478</span> <strong>Lernende</strong> analysiert",
-    problem_tag: "Das Problem",
-    problem_title: "Warum lernst du so viel<br />und vergisst trotzdem?",
-    problem_sub: "Es liegt nicht an mangelndem Einsatz. Du nutzt seit Jahren Methoden, die produktiv wirken, aber kaum Spuren in deinem Gedächtnis hinterlassen.",
-    prob1_tag: "Wiederlesen", prob1_title: "Die Illusion des Wissens",
-    prob1_desc: "Wiederlesen gibt ein falsches Gefühl von Beherrschung. Der Text wirkt vertraut, aber dein Geist musste ihn nie abrufen. Vertrautheit ist kein Gedächtnis.",
-    prob2_tag: "Markieren", prob2_title: "Anmalen ist kein Lernen",
-    prob2_desc: "Markieren gehört zu den Techniken mit dem geringsten realen Einfluss auf das, was du langfristig behältst. Du kennst es: heute markieren, morgen vergessen.",
-    prob3_tag: "Zusammenfassen", prob3_title: "Abschreiben ohne Denken",
-    prob3_desc: "Zusammenfassen durch Abschreiben von Sätzen erzeugt falsche Sicherheit und wenig Transfer. Das Wissen bleibt auf der Seite, nicht in deinem Kopf.",
-    prob_sol_title: "BrainMemora ersetzt, was nicht funktioniert,<br />durch das, was <em>funktioniert</em>",
-    prob_sol_desc: "Jede Sitzung zwingt dich, Gelesenes abzurufen, zu erklären und anzuwenden — die Techniken, die die Wissenschaft als hochwirksam einstuft. Keine Meinungen: Jahrzehnte der Forschung mit Hunderttausenden Lernenden.",
-    steps_tag: "So funktioniert es",
-    steps_title: "Vom Lesen zur Beherrschung in 3 Schritten",
-    steps_sub: "Öffne ein beliebiges PDF, einen Artikel oder eine Webseite. BrainMemora erscheint an deiner Seite und verwandelt das Gelesene in eine aktive Lernsitzung.",
-    step1_title: "Lade dein Material",
-    step1_desc: "Öffne ein PDF, füge Text ein oder aktiviere BrainMemora über jeder Webseite. Die KI erkennt die Schlüsselkonzepte in Sekunden.",
-    step2_title: "Wähle deinen Lernmodus",
-    step2_desc: "Prüfung, Feynman, Aktives Lesen, Verteiltes Wiederholen und mehr. Oder lass BrainMemora die optimale Strategie für dein Ziel wählen.",
-    step3_title: "Lerne mit echtem Feedback",
-    step3_desc: "Du antwortest. Die KI bewertet dein Verständnis, sagt dir, was gefehlt hat, und erstellt einen Wiederholungsplan, damit du es nicht vergisst.",
-    pillars_tag: "Das System",
-    pillars_title: "Was jene, die <em>beherrschen</em>,<br />von jenen trennt, die nur bestehen",
-    pillars_sub: "Der durchschnittliche Lernende verbringt die meiste Zeit mit gewohnheitsbasierten Techniken. BrainMemora hebt dich über den Durchschnitt — mit vier Säulen echten Lernens.",
-    p1_title: "Aktiver Abruf", p1_sub: "Quiz und Abrufübung",
-    p1_badge: "222 Studien · 48.478 Lernende",
-    p1_desc: "Zwinge deinen Geist, Informationen von Grund auf abzurufen, ohne den Text anzusehen. Die größte globale Analyse zum Thema —222 Studien und 48.478 Lernende— ergab, dass Selbsttesten das wirksamste individuelle Mittel für die Prüfungsleistung ist. Wer sich testet, beherrscht.",
-    p1_cite: "Yang C. et al., Psychological Bulletin, 2021",
-    p2_title: "Tiefes Verständnis", p2_sub: "Feynman und aktive Elaboration",
-    p2_badge: "Aktives Lernen, nicht passives",
-    p2_desc: "Zerlege den Begriff und schreibe ihn mit deinen eigenen Worten neu, als würdest du ihn jemandem erklären. Während der Durchschnitt markiert, aktivierst du echtes Verständnis. Aktiv zu lernen ist der Unterschied zwischen Verstehen und bloßem Wiedererkennen.",
-    p2_cite: "Freeman S. et al., PNAS, 2014 · Urrizola A. et al., Medical Teacher, 2023",
-    p3_title: "Angewandter Kontext", p3_sub: "Echte klinische, rechtliche oder geschäftliche Fälle",
-    p3_badge: "80 kontrollierte Studien",
-    p3_desc: "Bring die Theorie in die Praxis, indem du einen klinischen Fall, einen Rechtsstreit oder eine echte Geschäftsherausforderung löst. Eine Analyse von 80 kontrollierten Studien fand, dass fallbasiertes Lernen zu den wirksamsten Methoden gehört, um komplexe Fächer zu meistern. Lerne nicht für die Prüfung, lerne für den Fall.",
-    p3_cite: "Zhang SL. et al., BMC Medical Education, 2024",
-    p4_title: "Lautes Erklären", p4_sub: "Lehren und Diskutieren des Gelernten",
-    p4_badge: "Der größte Effekt in fortgeschrittener Bildung",
-    p4_desc: "Erkläre das Thema laut, als würdest du einem Schüler unterrichten, oder prüfe es mit einem Kollegen. Erklären und Diskutieren des Gelernten gehört zu den Praktiken mit dem größten dokumentierten Effekt in der Berufsausbildung. Es ist der Katalysator für kritisches Denken und langfristige Retention.",
-    p4_cite: "Huang PH. et al., Medical Teacher, 2019 · Bhuttah TM. et al., Scientific Reports, 2024",
-    meta_title: "Exklusiver Faktor: Metakognition", meta_sub: "Dein interner mentaler Prüfer",
-    meta_badge: "92% der Lernenden wenden sie nie an",
-    meta_desc: "Warum hebt dich dieses System sofort über den Durchschnitt? Weil es durch Metakognition geprüft wird: bewusst wissen, was du beherrschst und was nicht. Es ist das wirksamste Mittel für langfristige Retention, und doch wissen 92% der Lernenden auf hohem Niveau nicht, wie man sie anwendet. Mit BrainMemora erhältst du einen Vorteil, den fast alle ignorieren. Du lernst nicht mehr Stunden; du wendest Lern-Engineering an.",
-    meta_cite: "Urrizola A. et al., Medical Teacher, 2023 · D'Antoni AV. et al., Clinical Anatomy, 2019",
-    science_tag: "Die Belege",
-    science_title: "Kein Marketing.<br />Echte Zahlen.",
-    science_sub: "Jede Funktion von BrainMemora beruht auf veröffentlichter, peer-reviewter Forschung. Das sind die Zahlen hinter der Methode.",
-    ev1_label: "Wissenschaftliche Studien zur Abrufübung geprüft",
-    ev2_label: "Lernende analysiert — die größte globale Studie zum Thema",
-    ev3_label: "Kontrollierte Studien zum fallbasierten Lernen",
-    ev4_label: "Der Lernenden auf hohem Niveau können Metakognition nicht anwenden",
-    quote_text: "\"Die Wissenschaft sagt es seit Jahrzehnten: sich konsequent selbst zu testen ist das wirksamste individuelle Mittel für die Prüfungsleistung. Es geht nicht darum, mehr Stunden zu lernen, sondern richtig zu lernen.\"",
-    quote_cite: "— Synthese aus Yang et al. (2021), Freeman et al. (2014) und Urrizola et al. (2023)",
-    aud_tag: "Für wen ist es?",
-    aud_title: "Für alle, die ernsthaft lernen",
-    aud_sub: "Wenn es dir wichtig ist, wirklich zu lernen und nicht nur zu bestehen, ist BrainMemora für dich.",
-    aud1_idx: "01", aud1_title: "Fachkräfte in Zertifizierung", aud1_desc: "Ärzte, Anwälte, Buchhalter, Ingenieure. Dichtes Material, wenig Zeit, hohe Konsequenzen.",
-    aud2_idx: "02", aud2_title: "Postgraduierte", aud2_desc: "Master, Doktorate, Facharztausbildungen. Mehrere PDFs gleichzeitig, intensives Fachlesen.",
-    aud3_idx: "03", aud3_title: "Studierende", aud3_desc: "Wer mehr will als Auswendiglernen. Lernen zu lernen verändert das ganze Studium.",
-    aud4_idx: "04", aud4_title: "Selbstlernende", aud4_desc: "Sprachen, Wissenschaften, technische Fähigkeiten. Wer allein lernt, braucht ein System, das funktioniert.",
-    aud_note: "BrainMemora entstand mit Blick auf <strong>Studierende</strong>, aber die Methode dient jedem, der wirklich lernen muss: <strong>Ingenieuren, Anwälten, Schülern der Sekundar- oder Grundstufe, Prüfungskandidaten und Selbstlernenden</strong>. Wenn du etwas zu lernen hast, ist es für dich.",
-    trust1: "Null Datenspeicherung durch KI",
-    trust2: "Deine PDFs werden nie auf dem Server gespeichert",
-    trust3: "Dauerhaft kostenloser Plan — keine Karte nötig",
-    trust4: "Entwickelt von einem Internisten",
-    price_tag: "Preise", price_title: "Starte heute kostenlos",
-    price_sub: "Keine Karte. Kein Kleingedrucktes. Der kostenlose Plan ist dauerhaft.",
-    free_name: "Kostenlos", free_desc: "Für immer. Keine Kreditkarte.", free_cta: "Kostenlos installieren",
-    free_f1: "5 PDF-Dokumente pro Monat", free_f2: "3 Webseiten pro Tag", free_f3: "Alle Lernmodi",
-    free_f4: "KI-Feedback", free_f5: "Spanisch, Englisch, Portugiesisch",
-    free_f6: "Erweitertes verteiltes Wiederholen", free_f7: "Unbegrenzte Dokumente",
-    pro_badge: "Demnächst", pro_name: "Pro",
-    pro_desc: "≈ 5$/Monat · Sichere Zahlung via Paddle (akzeptiert internationale Karten).",
-    pro_cta: "Warteliste →",
-    pro_f1: "Alles aus dem kostenlosen Plan", pro_f2: "Unbegrenzte Dokumente", pro_f3: "Verteiltes Wiederholen komplett",
-    pro_f4: "Vollständiges metakognitives Dashboard", pro_f5: "Export nach Anki, Notion, PDF",
-    pro_f6: "Bevorzugter E-Mail-Support", pro_f7: "Zusätzliche Sprachen",
-    faq_tag: "Häufige Fragen", faq_title: "Direkte Antworten",
-    faq1_q: "Werden meine PDFs auf einem Server gespeichert?",
-    faq1_a: "Nein. BrainMemora verarbeitet dein Material wann immer möglich lokal im Browser. Wenn die KI deine Antwort bewerten muss, werden nur temporäre Textfragmente gesendet. Wir behalten keine Kopien deiner Dokumente. Dein Lernmaterial ist privat.",
-    faq2_q: "Nutzt die KI meine Texte zum Training?",
-    faq2_a: "Nein. Wir nutzen die API von Anthropic (Claude) unter einer Zero-Data-Retention-Richtlinie. Sobald die KI das Feedback erzeugt, löscht der Anbieter den Inhalt. Deine Texte werden nie zum Training von KI-Modellen verwendet.",
-    faq3_q: "Funktioniert es mit komplexen medizinischen oder technischen PDFs?",
-    faq3_a: "Ja. BrainMemora wurde von einem Internisten genau für dichtes, technisches akademisches Material entwickelt. Die KI kalibriert den Komplexitätsgrad und die Fragen passen sich dem Inhalt an. Es funktioniert gut mit Medizin, Recht, Wissenschaften, Ingenieurwesen und mehr.",
-    faq4_q: "Was unterscheidet BrainMemora von NotebookLM oder ChatPDF?",
-    faq4_a: "NotebookLM und ChatPDF sind passive Abfragewerkzeuge — sie beantworten Fragen zu deinen Dokumenten. BrainMemora ist eine pädagogische Engine: sie führt aktive Lernsitzungen, wendet wissenschaftliche Methoden an und erstellt einen personalisierten Retentionsplan. Der Unterschied ist wie eine Suchmaschine mit einem Tutor zu vergleichen.",
-    faq5_q: "Kann ich es nutzen, wenn ich nicht aus der Medizin komme?",
-    faq5_a: "Natürlich. Die Lernmethoden von BrainMemora sind universell — sie funktionieren für jede Disziplin, jedes Niveau und jede Sprache. Wenn du etwas lernst, das echtes Verständnis erfordert (nicht nur oberflächliches Auswendiglernen), ist BrainMemora für dich.",
-    faq6_q: "In welchen Ländern ist es verfügbar?",
-    faq6_a: "BrainMemora ist weltweit als Chrome-Erweiterung verfügbar. Die Benutzeroberfläche ist in 5 Sprachen verfügbar: Español, English, Português, Français und Deutsch — verwende den Sprachauswähler oben auf dieser Seite. Du kannst Dokumente in jeder Sprache lernen und Feedback in deiner bevorzugten Sprache erhalten.",
-    final_title: "Beginne so zu lernen,<br />wie es <em>wirklich</em> funktioniert",
-    final_sub: "Kostenlos. Keine Karte. Die Wissenschaft des Lernens in deinem Browser ab der ersten Minute.",
-    final_cta: "BrainMemora kostenlos in Chrome installieren",
-    footer_about: "Evidenzbasierter Lernassistent. Entwickelt von einem Internisten in Kolumbien für alle, die wirklich lernen wollen.",
-    footer_product: "Produkt", footer_how: "So funktioniert es", footer_pricing: "Preise", footer_install: "In Chrome installieren",
-    footer_legal: "Rechtliches", footer_privacy: "Datenschutzerklärung", footer_terms: "Nutzungsbedingungen", footer_contact: "Kontakt",
-    footer_copy: "© 2026 BrainMemora — Keyner Tatis · Kolumbien",
-    mobile_cta: "BrainMemora kostenlos in Chrome installieren"
-  }
-};
-
-function setLang(lang) {
-  if (!T[lang]) return;
-  document.getElementById('html-root').lang = lang;
-  document.title = T[lang].page_title || document.title;
-  document.querySelectorAll('[data-i18n]').forEach(function(el) {
-    var key = el.getAttribute('data-i18n');
-    if (T[lang][key] !== undefined) el.textContent = T[lang][key];
-  });
-  document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
-    var key = el.getAttribute('data-i18n-html');
-    if (T[lang][key] !== undefined) el.innerHTML = T[lang][key];
-  });
-  document.querySelectorAll('.lang-btn').forEach(function(btn) {
-    btn.classList.toggle('active', btn.id === 'lang-' + lang);
-  });
-  try { localStorage.setItem('bp_lang', lang); } catch(e) {}
-}
-
-(function() {
-  try {
-    var saved = localStorage.getItem('bp_lang');
-    if (saved && T[saved]) { setLang(saved); return; }
-  } catch(e) {}
-  var browser = (navigator.language || navigator.userLanguage || 'es').split('-')[0];
-  if (T[browser]) setLang(browser);
-})();
-</script>
-
+    var saved = '';
+    try { saved = localStorage.getItem('bm-lang') || ''; } catch (_) {}
+    var browser = (navigator.language || 'es').slice(0, 2).toLowerCase();
+    var init = TEXTOS[saved] ? saved : (TEXTOS[browser] ? browser : 'es');
+    setLang(init);
+  })();
+  </script>
 </body>
 </html>

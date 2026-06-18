@@ -176,6 +176,54 @@
       border: 1px solid var(--line); border-radius: 999px; padding: 7px 16px;
     }
 
+    /* ---------- Precios ---------- */
+    #precios { padding: 10vh clamp(22px, 7vw, 90px); max-width: 1060px; margin: 0 auto; }
+    .precios-titulo { text-align: center; margin-bottom: 14px; }
+    .precios-sub { text-align: center; color: var(--text-soft); font-size: 16px; margin-bottom: 52px; }
+    .precios-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .precio-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 28px 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+      display: flex; flex-direction: column; gap: 10px;
+      position: relative;
+      transition: border-color .3s, box-shadow .3s;
+    }
+    .precio-card:hover { border-color: var(--v-light); box-shadow: 0 20px 50px rgba(139,92,246,.15); }
+    .precio-card.popular { border-color: var(--v); box-shadow: 0 0 0 1px var(--v), 0 20px 50px rgba(139,92,246,.18); }
+    .precio-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--v); color: #fff; font-size: 11px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 14px; border-radius: 999px;
+      white-space: nowrap;
+    }
+    .precio-nombre { font-weight: 700; font-size: 15px; color: var(--text); }
+    .precio-monto { font-family: var(--serif); font-size: 36px; font-weight: 500; color: var(--v-light); line-height: 1; }
+    .precio-monto span { font-family: var(--sans); font-size: 14px; color: var(--text-mute); font-weight: 400; }
+    .precio-tipo { font-size: 12.5px; color: var(--text-mute); }
+    .precio-sep { height: 1px; background: var(--line); margin: 6px 0; }
+    .precio-feat { font-size: 13.5px; color: var(--text-soft); line-height: 1.5; }
+    .precio-feat li { list-style: none; padding: 2px 0; }
+    .precio-feat li::before { content: '✓ '; color: var(--green); font-weight: 700; }
+    .precio-btn {
+      margin-top: auto; padding: 11px 0; border-radius: 10px; border: none; cursor: pointer;
+      font-family: var(--sans); font-weight: 600; font-size: 14px;
+      background: var(--v); color: #fff;
+      transition: opacity .2s;
+    }
+    .precio-btn:hover { opacity: .85; }
+    .precio-btn.outline { background: transparent; border: 1px solid var(--line); color: var(--text-soft); }
+    .precio-btn.outline:hover { border-color: var(--v-light); color: var(--v-light); background: var(--v-faint); }
+    .precios-nota { text-align: center; margin-top: 28px; font-size: 13px; color: var(--text-mute); }
+    .precios-nota a { color: var(--v-light); text-decoration: none; border-bottom: 1px solid rgba(183,156,255,.3); }
+    @media (max-width: 860px) { .precios-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 540px) { .precios-grid { grid-template-columns: 1fr; } }
+
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .revelar { opacity: 1; transform: none; transition: none; }
@@ -264,6 +312,113 @@
       <p class="micro revelar d3" data-th="e4-micro">Como las sinapsis de este fondo: <b>cada repaso enciende la conexión y la vuelve más fuerte.</b></p>
     </section>
 
+    <!-- SECCIÓN PRECIOS -->
+    <section class="capa revelar" id="precios">
+      <div class="eyebrow precios-titulo" data-t="pr-eye">Planes y precios</div>
+      <h2 class="precios-titulo revelar" data-th="pr-h2" style="font-size:clamp(28px,4vw,48px);letter-spacing:-.5px;">Empieza gratis.<br>Desbloquea cuando <i>lo necesites</i>.</h2>
+      <p class="precios-sub revelar" data-t="pr-sub">Todos los planes incluyen los mismos modos de estudio. El plan Pro solo amplía los límites.</p>
+
+      <div class="precios-grid revelar">
+
+        <!-- Gratis -->
+        <div class="precio-card">
+          <div class="precio-nombre" data-t="pl-free-nombre">Plan Gratis</div>
+          <div class="precio-monto">$0 <span data-t="pl-free-tipo">para siempre</span></div>
+          <div class="precio-sep"></div>
+          <ul class="precio-feat">
+            <li data-t="pl-free-f1">3 PDFs por mes</li>
+            <li data-t="pl-free-f2">2 páginas web por día</li>
+            <li data-t="pl-free-f3">50 evaluaciones IA por día</li>
+            <li data-t="pl-free-f4">Todos los modos de estudio</li>
+            <li data-t="pl-free-f5">Repetición espaciada</li>
+          </ul>
+          <button class="precio-btn outline" data-t="pl-free-btn" onclick="window.open('https://chromewebstore.google.com','_blank','noopener')">Instalar gratis</button>
+        </div>
+
+        <!-- Flash -->
+        <div class="precio-card">
+          <div class="precio-nombre" data-t="pl-flash-nombre">Flash 48 horas</div>
+          <div class="precio-monto">$2.99 <span data-t="pl-flash-tipo">pago único</span></div>
+          <div class="precio-tipo" data-t="pl-flash-desc">Sin renovación automática</div>
+          <div class="precio-sep"></div>
+          <ul class="precio-feat">
+            <li data-t="pl-flash-f1">30 PDFs por mes</li>
+            <li data-t="pl-flash-f2">Páginas web ilimitadas</li>
+            <li data-t="pl-flash-f3">200 evaluaciones IA por día</li>
+            <li data-t="pl-flash-f4">Voz 30 min por sesión</li>
+          </ul>
+          <button class="precio-btn outline" data-t="pl-flash-btn" onclick="window.open('https://chromewebstore.google.com','_blank','noopener')">Obtener acceso</button>
+        </div>
+
+        <!-- Mensual -->
+        <div class="precio-card">
+          <div class="precio-nombre" data-t="pl-mes-nombre">Mensual</div>
+          <div class="precio-monto">$6.99 <span data-t="pl-mes-tipo">/ mes</span></div>
+          <div class="precio-tipo" data-t="pl-mes-desc">Renovación mensual automática</div>
+          <div class="precio-sep"></div>
+          <ul class="precio-feat">
+            <li data-t="pl-mes-f1">30 PDFs por mes</li>
+            <li data-t="pl-mes-f2">Páginas web ilimitadas</li>
+            <li data-t="pl-mes-f3">200 evaluaciones IA por día</li>
+            <li data-t="pl-mes-f4">Voz 30 min por sesión</li>
+          </ul>
+          <button class="precio-btn" data-t="pl-mes-btn" onclick="window.open('https://chromewebstore.google.com','_blank','noopener')">Suscribirse</button>
+        </div>
+
+        <!-- Trimestral -->
+        <div class="precio-card popular">
+          <div class="precio-badge" data-t="pl-trim-badge">Más popular</div>
+          <div class="precio-nombre" data-t="pl-trim-nombre">Trimestral</div>
+          <div class="precio-monto">$17.97 <span data-t="pl-trim-tipo">/ 3 meses</span></div>
+          <div class="precio-tipo" data-t="pl-trim-desc">$5.99/mes · Ahorra 14%</div>
+          <div class="precio-sep"></div>
+          <ul class="precio-feat">
+            <li data-t="pl-trim-f1">30 PDFs por mes</li>
+            <li data-t="pl-trim-f2">Páginas web ilimitadas</li>
+            <li data-t="pl-trim-f3">200 evaluaciones IA por día</li>
+            <li data-t="pl-trim-f4">Voz 30 min por sesión</li>
+          </ul>
+          <button class="precio-btn" data-t="pl-trim-btn" onclick="window.open('https://chromewebstore.google.com','_blank','noopener')">Suscribirse</button>
+        </div>
+
+        <!-- Semestral -->
+        <div class="precio-card">
+          <div class="precio-nombre" data-t="pl-sem-nombre">Semestral</div>
+          <div class="precio-monto">$33.54 <span data-t="pl-sem-tipo">/ 6 meses</span></div>
+          <div class="precio-tipo" data-t="pl-sem-desc">$5.59/mes · Ahorra 20%</div>
+          <div class="precio-sep"></div>
+          <ul class="precio-feat">
+            <li data-t="pl-sem-f1">30 PDFs por mes</li>
+            <li data-t="pl-sem-f2">Páginas web ilimitadas</li>
+            <li data-t="pl-sem-f3">200 evaluaciones IA por día</li>
+            <li data-t="pl-sem-f4">Voz 30 min por sesión</li>
+          </ul>
+          <button class="precio-btn" data-t="pl-sem-btn" onclick="window.open('https://chromewebstore.google.com','_blank','noopener')">Suscribirse</button>
+        </div>
+
+        <!-- Anual -->
+        <div class="precio-card">
+          <div class="precio-nombre" data-t="pl-anual-nombre">Anual</div>
+          <div class="precio-monto">$59.88 <span data-t="pl-anual-tipo">/ año</span></div>
+          <div class="precio-tipo" data-t="pl-anual-desc">$4.99/mes · Ahorra 29%</div>
+          <div class="precio-sep"></div>
+          <ul class="precio-feat">
+            <li data-t="pl-anual-f1">30 PDFs por mes</li>
+            <li data-t="pl-anual-f2">Páginas web ilimitadas</li>
+            <li data-t="pl-anual-f3">200 evaluaciones IA por día</li>
+            <li data-t="pl-anual-f4">Voz 30 min por sesión</li>
+          </ul>
+          <button class="precio-btn" data-t="pl-anual-btn" onclick="window.open('https://chromewebstore.google.com','_blank','noopener')">Suscribirse</button>
+        </div>
+
+      </div>
+      <p class="precios-nota revelar">
+        Precios en USD · Impuestos según tu país añadidos al pagar ·
+        <a href="legal/privacidad.html#reembolsos" data-t="pr-reembolso">Garantía de reembolso 14 días</a> ·
+        <a href="legal/privacidad.html#terminos" data-t="pr-terminos">Términos de servicio</a>
+      </p>
+    </section>
+
     <!-- ESTACIÓN 5 — CTA final -->
     <section class="estacion" id="final" style="align-items:center; text-align:center;">
       <h2 class="revelar" data-t="e5-h2" style="max-width:18ch; margin-inline:auto;">Empieza hoy. Tu próximo examen lo notará.</h2>
@@ -280,7 +435,7 @@
       <b style="font-family:var(--serif); font-size:18px;">BrainMemora</b>
     </a>
     <p data-t="ft-tag">Aprende más, olvida menos.</p>
-    <p><a data-t="ft-legal" href="legal/privacidad.html">Política de Privacidad y Términos</a></p>
+    <p><a data-t="ft-legal" href="legal/privacidad.html#privacidad">Política de Privacidad</a> · <a data-t="ft-terminos" href="legal/privacidad.html#terminos">Términos de Servicio</a> · <a data-t="ft-reembolsos" href="legal/privacidad.html#reembolsos">Reembolsos</a></p>
     <p class="desktop-nota" data-t="ft-nota">💻 Para navegadores de escritorio (Windows · Mac · Linux). En Android: vía Kiwi o Firefox.</p>
     <p style="margin-top:22px;">© 2026 BrainMemora · Keyner Tatis</p>
   </footer>
@@ -495,8 +650,21 @@
         'e5-sub': 'Gratis para empezar: 3 PDFs al mes, 2 páginas web al día, todos los modos de estudio y la retroalimentación de la IA. Sin tarjeta.',
         'e5-btn': 'Instalar en Chrome — gratis',
         'ft-tag': 'Aprende más, olvida menos.',
-        'ft-legal': 'Política de Privacidad y Términos',
-        'ft-nota': '💻 Para navegadores de escritorio (Windows · Mac · Linux). En Android: vía Kiwi o Firefox.'
+        'ft-legal': 'Política de Privacidad',
+        'ft-terminos': 'Términos de Servicio',
+        'ft-reembolsos': 'Reembolsos',
+        'ft-nota': '💻 Para navegadores de escritorio (Windows · Mac · Linux). En Android: vía Kiwi o Firefox.',
+        'pr-eye': 'Planes y precios',
+        'pr-h2': 'Empieza gratis.<br>Desbloquea cuando <i>lo necesites</i>.',
+        'pr-sub': 'Todos los planes incluyen los mismos modos de estudio. El plan Pro solo amplía los límites.',
+        'pr-reembolso': 'Garantía de reembolso 14 días',
+        'pr-terminos': 'Términos de servicio',
+        'pl-free-nombre':'Plan Gratis','pl-free-tipo':'para siempre','pl-free-f1':'3 PDFs por mes','pl-free-f2':'2 páginas web por día','pl-free-f3':'50 evaluaciones IA por día','pl-free-f4':'Todos los modos de estudio','pl-free-f5':'Repetición espaciada','pl-free-btn':'Instalar gratis',
+        'pl-flash-nombre':'Flash 48 horas','pl-flash-tipo':'pago único','pl-flash-desc':'Sin renovación automática','pl-flash-f1':'30 PDFs por mes','pl-flash-f2':'Páginas web ilimitadas','pl-flash-f3':'200 evaluaciones IA por día','pl-flash-f4':'Voz 30 min por sesión','pl-flash-btn':'Obtener acceso',
+        'pl-mes-nombre':'Mensual','pl-mes-tipo':'/ mes','pl-mes-desc':'Renovación mensual automática','pl-mes-f1':'30 PDFs por mes','pl-mes-f2':'Páginas web ilimitadas','pl-mes-f3':'200 evaluaciones IA por día','pl-mes-f4':'Voz 30 min por sesión','pl-mes-btn':'Suscribirse',
+        'pl-trim-badge':'Más popular','pl-trim-nombre':'Trimestral','pl-trim-tipo':'/ 3 meses','pl-trim-desc':'$5.99/mes · Ahorra 14%','pl-trim-f1':'30 PDFs por mes','pl-trim-f2':'Páginas web ilimitadas','pl-trim-f3':'200 evaluaciones IA por día','pl-trim-f4':'Voz 30 min por sesión','pl-trim-btn':'Suscribirse',
+        'pl-sem-nombre':'Semestral','pl-sem-tipo':'/ 6 meses','pl-sem-desc':'$5.59/mes · Ahorra 20%','pl-sem-f1':'30 PDFs por mes','pl-sem-f2':'Páginas web ilimitadas','pl-sem-f3':'200 evaluaciones IA por día','pl-sem-f4':'Voz 30 min por sesión','pl-sem-btn':'Suscribirse',
+        'pl-anual-nombre':'Anual','pl-anual-tipo':'/ año','pl-anual-desc':'$4.99/mes · Ahorra 29%','pl-anual-f1':'30 PDFs por mes','pl-anual-f2':'Páginas web ilimitadas','pl-anual-f3':'200 evaluaciones IA por día','pl-anual-f4':'Voz 30 min por sesión','pl-anual-btn':'Suscribirse'
       },
       en: {
         title: 'BrainMemora — Journey through the science of memory',
@@ -534,8 +702,15 @@
         'e5-sub': 'Free to start: 3 PDFs a month, 2 web pages a day, all study modes and AI feedback. No card required.',
         'e5-btn': 'Install in Chrome — free',
         'ft-tag': 'Learn more, forget less.',
-        'ft-legal': 'Privacy Policy & Terms',
-        'ft-nota': '💻 For desktop browsers (Windows · Mac · Linux). On Android: via Kiwi or Firefox.'
+        'ft-legal': 'Privacy Policy', 'ft-terminos': 'Terms of Service', 'ft-reembolsos': 'Refund Policy',
+        'ft-nota': '💻 For desktop browsers (Windows · Mac · Linux). On Android: via Kiwi or Firefox.',
+        'pr-eye':'Plans & Pricing','pr-h2':'Start free.<br>Unlock when <i>you need it</i>.','pr-sub':'All plans include the same study modes. Pro just raises the limits.','pr-reembolso':'14-day money-back guarantee','pr-terminos':'Terms of service',
+        'pl-free-nombre':'Free Plan','pl-free-tipo':'forever','pl-free-f1':'3 PDFs per month','pl-free-f2':'2 web pages per day','pl-free-f3':'50 AI evaluations per day','pl-free-f4':'All study modes','pl-free-f5':'Spaced repetition','pl-free-btn':'Install free',
+        'pl-flash-nombre':'Flash 48 hours','pl-flash-tipo':'one-time','pl-flash-desc':'No automatic renewal','pl-flash-f1':'30 PDFs per month','pl-flash-f2':'Unlimited web pages','pl-flash-f3':'200 AI evaluations per day','pl-flash-f4':'Voice 30 min per session','pl-flash-btn':'Get access',
+        'pl-mes-nombre':'Monthly','pl-mes-tipo':'/ month','pl-mes-desc':'Monthly auto-renewal','pl-mes-f1':'30 PDFs per month','pl-mes-f2':'Unlimited web pages','pl-mes-f3':'200 AI evaluations per day','pl-mes-f4':'Voice 30 min per session','pl-mes-btn':'Subscribe',
+        'pl-trim-badge':'Most popular','pl-trim-nombre':'Quarterly','pl-trim-tipo':'/ 3 months','pl-trim-desc':'$5.99/mo · Save 14%','pl-trim-f1':'30 PDFs per month','pl-trim-f2':'Unlimited web pages','pl-trim-f3':'200 AI evaluations per day','pl-trim-f4':'Voice 30 min per session','pl-trim-btn':'Subscribe',
+        'pl-sem-nombre':'Semi-annual','pl-sem-tipo':'/ 6 months','pl-sem-desc':'$5.59/mo · Save 20%','pl-sem-f1':'30 PDFs per month','pl-sem-f2':'Unlimited web pages','pl-sem-f3':'200 AI evaluations per day','pl-sem-f4':'Voice 30 min per session','pl-sem-btn':'Subscribe',
+        'pl-anual-nombre':'Annual','pl-anual-tipo':'/ year','pl-anual-desc':'$4.99/mo · Save 29%','pl-anual-f1':'30 PDFs per month','pl-anual-f2':'Unlimited web pages','pl-anual-f3':'200 AI evaluations per day','pl-anual-f4':'Voice 30 min per session','pl-anual-btn':'Subscribe'
       },
       pt: {
         title: 'BrainMemora — Viaje pela ciência de memorizar',
@@ -573,8 +748,15 @@
         'e5-sub': 'Grátis para começar: 3 PDFs por mês, 2 páginas web por dia, todos os modos de estudo e feedback de IA. Sem cartão.',
         'e5-btn': 'Instalar no Chrome — grátis',
         'ft-tag': 'Aprenda mais, esqueça menos.',
-        'ft-legal': 'Política de Privacidade e Termos',
-        'ft-nota': '💻 Para navegadores de desktop (Windows · Mac · Linux). No Android: via Kiwi ou Firefox.'
+        'ft-legal': 'Política de Privacidade', 'ft-terminos': 'Termos de Serviço', 'ft-reembolsos': 'Reembolsos',
+        'ft-nota': '💻 Para navegadores de desktop (Windows · Mac · Linux). No Android: via Kiwi ou Firefox.',
+        'pr-eye':'Planos e preços','pr-h2':'Comece grátis.<br>Desbloqueie quando <i>precisar</i>.','pr-sub':'Todos os planos incluem os mesmos modos de estudo. O Pro só amplia os limites.','pr-reembolso':'Garantia de reembolso 14 dias','pr-terminos':'Termos de serviço',
+        'pl-free-nome':'Plano Grátis','pl-free-nome':'Plano Grátis','pl-free-tipo':'para sempre','pl-free-f1':'3 PDFs por mês','pl-free-f2':'2 páginas web por dia','pl-free-f3':'50 avaliações IA por dia','pl-free-f4':'Todos os modos de estudo','pl-free-f5':'Repetição espaçada','pl-free-btn':'Instalar grátis',
+        'pl-flash-nome':'Flash 48 horas','pl-flash-nome':'Flash 48 horas','pl-flash-tipo':'pagamento único','pl-flash-desc':'Sem renovação automática','pl-flash-f1':'30 PDFs por mês','pl-flash-f2':'Páginas web ilimitadas','pl-flash-f3':'200 avaliações IA por dia','pl-flash-f4':'Voz 30 min por sessão','pl-flash-btn':'Obter acesso',
+        'pl-mes-nome':'Mensal','pl-mes-nome':'Mensal','pl-mes-tipo':'/ mês','pl-mes-desc':'Renovação mensal automática','pl-mes-f1':'30 PDFs por mês','pl-mes-f2':'Páginas web ilimitadas','pl-mes-f3':'200 avaliações IA por dia','pl-mes-f4':'Voz 30 min por sessão','pl-mes-btn':'Assinar',
+        'pl-trim-badge':'Mais popular','pl-trim-nome':'Trimestral','pl-trim-nome':'Trimestral','pl-trim-tipo':'/ 3 meses','pl-trim-desc':'$5.99/mês · Economize 14%','pl-trim-f1':'30 PDFs por mês','pl-trim-f2':'Páginas web ilimitadas','pl-trim-f3':'200 avaliações IA por dia','pl-trim-f4':'Voz 30 min por sessão','pl-trim-btn':'Assinar',
+        'pl-sem-nome':'Semestral','pl-sem-nome':'Semestral','pl-sem-tipo':'/ 6 meses','pl-sem-desc':'$5.59/mês · Economize 20%','pl-sem-f1':'30 PDFs por mês','pl-sem-f2':'Páginas web ilimitadas','pl-sem-f3':'200 avaliações IA por dia','pl-sem-f4':'Voz 30 min por sessão','pl-sem-btn':'Assinar',
+        'pl-anual-nome':'Anual','pl-anual-nome':'Anual','pl-anual-tipo':'/ ano','pl-anual-desc':'$4.99/mês · Economize 29%','pl-anual-f1':'30 PDFs por mês','pl-anual-f2':'Páginas web ilimitadas','pl-anual-f3':'200 avaliações IA por dia','pl-anual-f4':'Voz 30 min por sessão','pl-anual-btn':'Assinar'
       },
       fr: {
         title: 'BrainMemora — Voyage à travers la science de la mémoire',
@@ -612,8 +794,15 @@
         'e5-sub': 'Gratuit pour commencer : 3 PDFs par mois, 2 pages web par jour, tous les modes d\'étude et les retours de l\'IA. Sans carte.',
         'e5-btn': 'Installer sur Chrome — gratuit',
         'ft-tag': 'Apprenez plus, oubliez moins.',
-        'ft-legal': 'Politique de confidentialité et CGU',
-        'ft-nota': '💻 Pour navigateurs de bureau (Windows · Mac · Linux). Sur Android : via Kiwi ou Firefox.'
+        'ft-legal': 'Politique de confidentialité', 'ft-terminos': 'CGU', 'ft-reembolsos': 'Remboursements',
+        'ft-nota': '💻 Pour navigateurs de bureau (Windows · Mac · Linux). Sur Android : via Kiwi ou Firefox.',
+        'pr-eye':'Plans et tarifs','pr-h2':'Commencez gratuitement.<br>Débloquez quand <i>vous en avez besoin</i>.','pr-sub':'Tous les plans incluent les mêmes modes d\'étude. Le Pro augmente seulement les limites.','pr-reembolso':'Garantie de remboursement 14 jours','pr-terminos':'Conditions d\'utilisation',
+        'pl-free-nombre':'Plan Gratuit','pl-free-tipo':'pour toujours','pl-free-f1':'3 PDFs par mois','pl-free-f2':'2 pages web par jour','pl-free-f3':'50 évaluations IA par jour','pl-free-f4':'Tous les modes d\'étude','pl-free-f5':'Répétition espacée','pl-free-btn':'Installer gratuitement',
+        'pl-flash-nombre':'Flash 48 heures','pl-flash-tipo':'paiement unique','pl-flash-desc':'Sans renouvellement automatique','pl-flash-f1':'30 PDFs par mois','pl-flash-f2':'Pages web illimitées','pl-flash-f3':'200 évaluations IA par jour','pl-flash-f4':'Voix 30 min par session','pl-flash-btn':'Obtenir l\'accès',
+        'pl-mes-nombre':'Mensuel','pl-mes-tipo':'/ mois','pl-mes-desc':'Renouvellement mensuel automatique','pl-mes-f1':'30 PDFs par mois','pl-mes-f2':'Pages web illimitées','pl-mes-f3':'200 évaluations IA par jour','pl-mes-f4':'Voix 30 min par session','pl-mes-btn':'S\'abonner',
+        'pl-trim-badge':'Le plus populaire','pl-trim-nombre':'Trimestriel','pl-trim-tipo':'/ 3 mois','pl-trim-desc':'5,99 $/mois · Économisez 14 %','pl-trim-f1':'30 PDFs par mois','pl-trim-f2':'Pages web illimitées','pl-trim-f3':'200 évaluations IA par jour','pl-trim-f4':'Voix 30 min par session','pl-trim-btn':'S\'abonner',
+        'pl-sem-nombre':'Semestriel','pl-sem-tipo':'/ 6 mois','pl-sem-desc':'5,59 $/mois · Économisez 20 %','pl-sem-f1':'30 PDFs par mois','pl-sem-f2':'Pages web illimitées','pl-sem-f3':'200 évaluations IA par jour','pl-sem-f4':'Voix 30 min par session','pl-sem-btn':'S\'abonner',
+        'pl-anual-nombre':'Annuel','pl-anual-tipo':'/ an','pl-anual-desc':'4,99 $/mois · Économisez 29 %','pl-anual-f1':'30 PDFs par mois','pl-anual-f2':'Pages web illimitées','pl-anual-f3':'200 évaluations IA par jour','pl-anual-f4':'Voix 30 min par session','pl-anual-btn':'S\'abonner'
       },
       de: {
         title: 'BrainMemora — Reise durch die Wissenschaft des Erinnerns',
@@ -651,8 +840,15 @@
         'e5-sub': 'Kostenlos starten: 3 PDFs pro Monat, 2 Webseiten pro Tag, alle Lernmodi und KI-Feedback. Ohne Karte.',
         'e5-btn': 'In Chrome installieren — kostenlos',
         'ft-tag': 'Mehr lernen, weniger vergessen.',
-        'ft-legal': 'Datenschutz & Nutzungsbedingungen',
-        'ft-nota': '💻 Für Desktop-Browser (Windows · Mac · Linux). Auf Android: via Kiwi oder Firefox.'
+        'ft-legal': 'Datenschutz', 'ft-terminos': 'Nutzungsbedingungen', 'ft-reembolsos': 'Erstattungen',
+        'ft-nota': '💻 Für Desktop-Browser (Windows · Mac · Linux). Auf Android: via Kiwi oder Firefox.',
+        'pr-eye':'Pläne & Preise','pr-h2':'Starte kostenlos.<br>Schalte frei, <i>wenn du es brauchst</i>.','pr-sub':'Alle Pläne enthalten dieselben Lernmodi. Pro erhöht nur die Limits.','pr-reembolso':'14-Tage-Geld-zurück-Garantie','pr-terminos':'Nutzungsbedingungen',
+        'pl-free-nombre':'Kostenlos','pl-free-tipo':'für immer','pl-free-f1':'3 PDFs pro Monat','pl-free-f2':'2 Webseiten pro Tag','pl-free-f3':'50 KI-Bewertungen pro Tag','pl-free-f4':'Alle Lernmodi','pl-free-f5':'Spaced Repetition','pl-free-btn':'Kostenlos installieren',
+        'pl-flash-nombre':'Flash 48 Stunden','pl-flash-tipo':'Einmalzahlung','pl-flash-desc':'Keine automatische Verlängerung','pl-flash-f1':'30 PDFs pro Monat','pl-flash-f2':'Unbegrenzte Webseiten','pl-flash-f3':'200 KI-Bewertungen pro Tag','pl-flash-f4':'Sprache 30 Min. pro Sitzung','pl-flash-btn':'Zugang erhalten',
+        'pl-mes-nombre':'Monatlich','pl-mes-tipo':'/ Monat','pl-mes-desc':'Monatliche automatische Verlängerung','pl-mes-f1':'30 PDFs pro Monat','pl-mes-f2':'Unbegrenzte Webseiten','pl-mes-f3':'200 KI-Bewertungen pro Tag','pl-mes-f4':'Sprache 30 Min. pro Sitzung','pl-mes-btn':'Abonnieren',
+        'pl-trim-badge':'Beliebtester','pl-trim-nombre':'Vierteljährlich','pl-trim-tipo':'/ 3 Monate','pl-trim-desc':'5,99 $/Monat · 14 % sparen','pl-trim-f1':'30 PDFs pro Monat','pl-trim-f2':'Unbegrenzte Webseiten','pl-trim-f3':'200 KI-Bewertungen pro Tag','pl-trim-f4':'Sprache 30 Min. pro Sitzung','pl-trim-btn':'Abonnieren',
+        'pl-sem-nombre':'Halbjährlich','pl-sem-tipo':'/ 6 Monate','pl-sem-desc':'5,59 $/Monat · 20 % sparen','pl-sem-f1':'30 PDFs pro Monat','pl-sem-f2':'Unbegrenzte Webseiten','pl-sem-f3':'200 KI-Bewertungen pro Tag','pl-sem-f4':'Sprache 30 Min. pro Sitzung','pl-sem-btn':'Abonnieren',
+        'pl-anual-nombre':'Jährlich','pl-anual-tipo':'/ Jahr','pl-anual-desc':'4,99 $/Monat · 29 % sparen','pl-anual-f1':'30 PDFs pro Monat','pl-anual-f2':'Unbegrenzte Webseiten','pl-anual-f3':'200 KI-Bewertungen pro Tag','pl-anual-f4':'Sprache 30 Min. pro Sitzung','pl-anual-btn':'Abonnieren'
       }
     };
 

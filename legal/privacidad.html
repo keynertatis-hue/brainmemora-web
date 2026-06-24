@@ -200,7 +200,7 @@
 <header>
   <div class="logo">BrainMemora</div>
   <div class="tagline">Convierte lo que lees en aprendizaje real — basado en ciencia cognitiva</div>
-  <div class="version">Versión 1.2 · Actualizada: junio 2026 · Vigente desde el 1 de julio de 2026</div>
+  <div class="version">Versión 1.4 · Actualizada: junio 2026 · Vigente desde el 1 de julio de 2026</div>
 </header>
 
 <nav>
@@ -219,7 +219,7 @@
   <!-- ═══════════════════════════════════════════════════════════════════ -->
   <div class="seccion" id="privacidad">
     <h1>Política de Privacidad</h1>
-    <p class="meta">Versión 1.2 · Vigente desde el 1 de julio de 2026 · Idioma oficial: español</p>
+    <p class="meta">Versión 1.4 · Vigente desde el 1 de julio de 2026 · Idioma oficial: español</p>
 
     <div class="caja">
       <strong>Principio esencial:</strong> BrainMemora aplica el principio de mínima recolección
@@ -287,12 +287,12 @@
         </tr>
         <tr>
           <td><strong>Contador de uso mensual</strong></td>
-          <td>Número de PDFs y páginas web estudiadas por mes, para aplicar los límites del plan gratuito (3 PDFs/mes · 2 páginas/día).</td>
+          <td>Número de PDFs, páginas web, preguntas y créditos de procesamiento usados por mes (y por hora, para el límite anti-abuso), con el fin de aplicar los límites de tu plan. El detalle exacto de los límites está en los Términos de Servicio.</td>
           <td>Se reinicia mensualmente. Se elimina al borrar tu cuenta.</td>
         </tr>
         <tr>
           <td><strong>Plan de suscripción</strong></td>
-          <td>Saber si tienes plan gratuito o Pro, fecha de vencimiento e identificador de suscripción en Paddle, para ofrecerte las funciones correspondientes.</td>
+          <td>Saber si tienes plan gratuito o Pro, fecha de vencimiento e identificador de suscripción en Lemon Squeezy, para ofrecerte las funciones correspondientes.</td>
           <td>Hasta que elimines tu cuenta.</td>
         </tr>
       </tbody>
@@ -320,23 +320,31 @@
 
     <h2>4. Inteligencia artificial — Qué ocurre cuando la IA te evalúa</h2>
     <p>
-      BrainMemora usa la API de Anthropic (modelo Claude) para evaluar tu comprensión. Cuando
-      solicitas una evaluación, el texto que seleccionaste y tu respuesta se envían a Anthropic
-      <strong>exclusivamente para generar la retroalimentación de esa sesión</strong>. Esto ocurre
-      en tránsito y no queda guardado en nuestros servidores.
+      BrainMemora usa la API de Google (modelo Gemini) para generar las preguntas, los casos y la
+      evaluación de tu estudio. Cuando solicitas una de estas acciones, el texto que seleccionaste
+      —o el texto extraído de tu PDF— y tu respuesta se envían a Google
+      <strong>exclusivamente para generar el resultado de esa sesión</strong>. Esto ocurre en
+      tránsito y no queda guardado en los servidores de BrainMemora.
     </p>
     <p>
-      Según la política de Anthropic para clientes de API, <strong>estos datos no se usan
-      para entrenar sus modelos de IA</strong>. Puedes consultar la política completa de Anthropic
-      en <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">anthropic.com/privacy</a>.
+      <strong>Uso de los datos por parte de Google:</strong> actualmente BrainMemora utiliza el
+      <strong>nivel gratuito</strong> de la API de Gemini. Según los términos de Google para ese
+      nivel, <strong>Google puede revisar y utilizar el contenido que se le envía para mejorar y
+      desarrollar sus productos y servicios de inteligencia artificial</strong>, lo que puede
+      incluir el entrenamiento de sus modelos. En otras palabras: el texto que estudias se transmite
+      a Google como encargado del procesamiento y queda sujeto a los términos de Google, no solo a
+      los de BrainMemora. Puedes consultarlos en
+      <a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener">ai.google.dev/gemini-api/terms</a>
+      y <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>.
     </p>
 
     <div class="caja-aviso">
-      <strong>Importante al usar BrainMemora:</strong> Aunque no almacenamos el contenido que
-      estudias, el texto que seleccionas sí pasa por los servidores de Anthropic para generar la
-      retroalimentación. Por eso, <strong>no uses BrainMemora para estudiar documentos con datos
-      de pacientes, historias clínicas u otra información personal confidencial de
-      terceros</strong>. Ver sección de Uso Permitido en los Términos de Servicio.
+      <strong>Importante — no subas información confidencial:</strong> dado que el texto que
+      seleccionas o cargas <strong>se transmite a Google</strong> para procesarlo,
+      <strong>no uses BrainMemora para estudiar documentos con datos de pacientes, historias
+      clínicas, información personal de terceros ni ningún material confidencial</strong>. Utiliza
+      únicamente material de estudio público o propio que no contenga datos sensibles. Ver la
+      sección de Uso Permitido en los Términos de Servicio.
     </div>
 
     <h2>5. Base legal del tratamiento</h2>
@@ -433,21 +441,23 @@
         <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Ver política →</a>
       </li>
       <li>
-        <strong>Anthropic PBC</strong> (anthropic.com) — procesamiento de IA. Solo recibe el
-        texto de cada sesión activa durante el tiempo necesario para generar la evaluación. No
-        entrena modelos con datos de usuarios de API.
-        <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">Ver política →</a>
+        <strong>Google LLC</strong> (API de Gemini · ai.google.dev) — procesamiento de IA. Recibe el
+        texto de cada sesión de estudio durante el tiempo necesario para generar el resultado.
+        BrainMemora usa el <strong>nivel gratuito</strong> de la API; según los términos de Google
+        para ese nivel, Google puede utilizar el contenido enviado para mejorar sus servicios de IA
+        (ver sección 4). Por eso, no subas información confidencial ni datos de pacientes.
+        <a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener">Ver términos →</a>
       </li>
       <li>
-        <strong>Paddle.com Market Ltd.</strong> (paddle.com · Company No. 07139750) — procesador de pagos y Merchant
+        <strong>Lemon Squeezy, LLC</strong> (lemonsqueezy.com) — procesador de pagos y Merchant
         of Record. Procesa datos de pago (correo, país de facturación) para gestionar
-        suscripciones e impuestos. No tiene acceso a datos de estudio.
-        <a href="https://www.paddle.com/legal/privacy" target="_blank" rel="noopener">Ver política →</a>
+        suscripciones e impuestos. No tiene acceso a tu contenido de estudio.
+        <a href="https://www.lemonsqueezy.com/privacy" target="_blank" rel="noopener">Ver política →</a>
       </li>
       <li>
-        <strong>Google LLC</strong> — únicamente si usas "Continuar con Google" para
-        autenticarte. En ese caso, Google comparte tu nombre y correo con nosotros. No accede
-        a tu contenido de estudio.
+        <strong>Google LLC</strong> (inicio de sesión) — únicamente si usas "Continuar con Google"
+        para autenticarte. En ese caso, Google comparte tu nombre y correo con nosotros. Este uso
+        es independiente del procesamiento de IA descrito arriba.
       </li>
     </ul>
     <p>
@@ -565,7 +575,7 @@
   <!-- ═══════════════════════════════════════════════════════════════════ -->
   <div class="seccion" id="terminos">
     <h1>Términos de Servicio</h1>
-    <p class="meta">Versión 1.2 · Vigente desde el 1 de julio de 2026 · Idioma oficial: español</p>
+    <p class="meta">Versión 1.4 · Vigente desde el 1 de julio de 2026 · Idioma oficial: español</p>
 
     <h2>1. Partes del contrato</h2>
     <p>
@@ -582,7 +592,7 @@
       pasiva en estudio activo mediante técnicas de aprendizaje respaldadas por ciencia
       cognitiva: práctica de recuperación, explicación tipo Feynman, aplicación contextual,
       elaboración activa, cuestionarios y repetición espaciada. El servicio incluye
-      retroalimentación generada por inteligencia artificial (modelo Claude de Anthropic) y
+      retroalimentación generada por inteligencia artificial (modelo Gemini de Google) y
       seguimiento de progreso mediante el sistema de tarjetas de repaso.
     </p>
 
@@ -610,24 +620,39 @@
     <h2>4. Planes, precios y límites de uso</h2>
 
     <h3>4.1 Plan Gratuito</h3>
-    <p>El plan gratuito incluye, sin costo y sin límite de tiempo:</p>
+    <p>
+      El plan gratuito es una muestra del servicio, sin costo y sin tarjeta. Sus límites son
+      <strong>mensuales y se reinician el primer día de cada mes</strong>. Incluye:
+    </p>
     <ul>
-      <li>Hasta <strong>3 documentos PDF</strong> por mes.</li>
-      <li>Hasta <strong>2 páginas web</strong> por día.</li>
-      <li>Hasta <strong>50 evaluaciones de IA</strong> por día.</li>
-      <li>Hasta <strong>5 minutos de modo voz</strong> por sesión.</li>
-      <li>Acceso a todos los modos de estudio (Extracción, Comprensión, Contexto, Voz).</li>
-      <li>Sistema de repetición espaciada y seguimiento de progreso.</li>
+      <li><strong>2 documentos PDF por mes</strong>, de hasta <strong>15 páginas</strong> cada uno.
+        Se carga un PDF a la vez (no varios simultáneamente).</li>
+      <li><strong>2 páginas web por día.</strong></li>
+      <li><strong>Extracción</strong> (preguntas de recuperación): hasta <strong>10 preguntas por
+        PDF</strong>, equivalente a un máximo de <strong>20 preguntas al mes</strong>, tanto en
+        respuesta libre como en opción múltiple. Las opciones de 15 y 20 preguntas son exclusivas
+        del plan Pro.</li>
+      <li><strong>Comprensión</strong>: disponible; la longitud de respuesta "Exhaustiva" es
+        exclusiva del plan Pro.</li>
+      <li><strong>Contexto aplicado</strong>: hasta <strong>5 preguntas por sesión</strong> y
+        <strong>2 sesiones por mes</strong> (máximo aproximado de 10 preguntas de contexto al mes).</li>
+    </ul>
+    <p><strong>Funciones NO incluidas en el plan gratuito</strong> (requieren un plan Pro o Flash):</p>
+    <ul>
+      <li>El <strong>Módulo de Voz</strong> completo: explicar el tema hablando y el Simulador de
+        Exposición.</li>
+      <li>El <strong>repaso espaciado</strong> (repasar los temas que has guardado).</li>
+      <li><strong>Cargar varios PDFs</strong> a la vez para estudiarlos juntos.</li>
     </ul>
 
-    <h3>4.2 Planes Pro de pago</h3>
+    <h3>4.2 Planes Pro y Flash de pago</h3>
     <div class="caja-aviso">
-      <strong>Próximamente disponible:</strong> Los pagos Pro están en preparación. Esta
-      sección entra en vigor cuando se habilite el cobro a través de Paddle.
+      <strong>Próximamente disponible:</strong> Los pagos están en preparación. Esta sección entra
+      en vigor cuando se habilite el cobro a través de Lemon Squeezy.
     </div>
     <p>
       Precios en dólares estadounidenses (USD). Los impuestos aplicables en tu país (IVA, GST,
-      impuesto sobre ventas digital) son calculados y añadidos por Paddle al momento del pago:
+      impuesto sobre ventas digital) son calculados y añadidos por Lemon Squeezy al momento del pago:
     </p>
 
     <table class="tabla-precios">
@@ -641,72 +666,78 @@
       </thead>
       <tbody>
         <tr>
-          <td><strong>Flash 48 horas</strong></td>
-          <td>$2.99</td>
+          <td><strong>Flash 72 horas</strong></td>
+          <td>$3.99</td>
           <td>—</td>
           <td>Pago único, sin renovación automática</td>
         </tr>
         <tr>
-          <td><strong>Mensual</strong></td>
-          <td>$6.99 / mes</td>
-          <td>$6.99</td>
+          <td><strong>Pro Mensual</strong></td>
+          <td>$10.00 / mes</td>
+          <td>$10.00</td>
           <td>Suscripción con renovación mensual automática</td>
         </tr>
         <tr>
-          <td><strong>Trimestral</strong></td>
-          <td>$17.97 / 3 meses</td>
-          <td>$5.99 (ahorra 14%)</td>
-          <td>Suscripción con renovación trimestral automática</td>
-        </tr>
-        <tr>
-          <td><strong>Semestral</strong></td>
-          <td>$33.54 / 6 meses</td>
-          <td>$5.59 (ahorra 20%)</td>
-          <td>Suscripción con renovación semestral automática</td>
-        </tr>
-        <tr>
-          <td><strong>Anual</strong></td>
-          <td>$59.88 / año</td>
-          <td>$4.99 (ahorra 29%)</td>
+          <td><strong>Pro Anual</strong></td>
+          <td>$87.60 / año</td>
+          <td>$7.30 (ahorra ~27%)</td>
           <td>Suscripción con renovación anual automática</td>
         </tr>
       </tbody>
     </table>
 
-    <p>El plan Pro incluye:</p>
+    <h3>4.3 Qué incluye Pro y cómo funcionan los créditos</h3>
+    <p>
+      Los planes <strong>Pro Mensual</strong> y <strong>Pro Anual</strong> incluyen
+      <strong>15.000 créditos de procesamiento cada mes</strong>. El plan <strong>Flash</strong>
+      incluye <strong>1.500 créditos durante su período de 72 horas</strong>. Ambos desbloquean
+      <strong>todas las funciones</strong>: Módulo de Voz, Simulador de Exposición, cargar varios
+      PDFs (hasta 50 páginas combinadas), enfoque por tema y repaso espaciado. En Contexto aplicado,
+      Pro permite hasta <strong>15 preguntas por sesión</strong>.
+    </p>
     <ul>
-      <li>Hasta <strong>30 documentos PDF</strong> por mes.</li>
-      <li><strong>Páginas web ilimitadas</strong> por día.</li>
-      <li>Hasta <strong>200 evaluaciones de IA</strong> por día.</li>
-      <li>Hasta <strong>30 minutos de modo voz</strong> por sesión.</li>
-      <li>Acceso prioritario a nuevas funciones.</li>
+      <li><strong>Qué es un crédito:</strong> 1 crédito equivale aproximadamente a
+        <strong>1 página de texto</strong> procesada por la IA. No son "tokens": es una medida de
+        uso pensada para tu claridad.</li>
+      <li><strong>Cuándo se consumen:</strong> los créditos se descuentan
+        <strong>en el momento en que la IA genera un resultado</strong> (una evaluación, un caso o
+        un conjunto de preguntas). <strong>Retroceder o volver atrás en la interfaz NO reembolsa ni
+        restaura los créditos ya consumidos.</strong></li>
+      <li><strong>Política de Uso Justo:</strong> los créditos son un límite de uso justo, no una
+        promesa de uso ilimitado. Si se agotan antes de fin de mes, podrás volver a usar el plan al
+        reiniciarse el período mensual o adquirir un plan Flash.</li>
+      <li><strong>Límite anti-abuso (todos los planes, incluido el gratuito):</strong> máximo
+        <strong>30 interacciones con la IA por hora</strong>. Superarlo suspende temporalmente las
+        llamadas de IA durante una hora; protege el servicio frente a usos automatizados.</li>
     </ul>
 
     <h2>5. Pagos, procesador y Merchant of Record</h2>
     <p>
-      Los pagos se procesan a través de <strong>Paddle.com Market Ltd.</strong>
-      (registrada en Inglaterra y Gales, Company No. 07139750; para usuarios en EE. UU.
-      puede actuar como Paddle.com Inc.), que actúa como
-      <strong>Merchant of Record</strong>: Paddle es el vendedor oficial ante tu banco y ante las
-      autoridades fiscales de tu país. Paddle calcula, cobra y remite los impuestos aplicables
-      en cada jurisdicción. BrainMemora recibe el importe neto después de comisiones.
+      Los pagos se procesan a través de <strong>Lemon Squeezy, LLC</strong> (lemonsqueezy.com), que
+      actúa como <strong>Merchant of Record</strong>: Lemon Squeezy es el vendedor oficial ante tu
+      banco y ante las autoridades fiscales de tu país. Lemon Squeezy calcula, cobra y remite los
+      impuestos aplicables en cada jurisdicción. BrainMemora recibe el importe neto después de
+      comisiones.
     </p>
     <p>
-      Al completar una compra en Paddle, también quedas sujeto a los
-      <a href="https://www.paddle.com/legal/buyer-terms" target="_blank" rel="noopener">Términos de Compra de Paddle</a>.
-      Paddle acepta tarjetas Visa y Mastercard, PayPal, y otros métodos de pago según tu país.
+      Al completar una compra, también quedas sujeto a los términos y la política de privacidad de
+      Lemon Squeezy, disponibles en
+      <a href="https://www.lemonsqueezy.com/terms" target="_blank" rel="noopener">lemonsqueezy.com/terms</a>
+      y <a href="https://www.lemonsqueezy.com/privacy" target="_blank" rel="noopener">lemonsqueezy.com/privacy</a>.
+      Lemon Squeezy acepta tarjetas (Visa, Mastercard, American Express) y PayPal, según tu país.
     </p>
 
     <h2>6. Renovación automática y cancelación</h2>
     <p>
-      Los planes de suscripción (Mensual, Trimestral, Semestral, Anual) <strong>se renuevan
-      automáticamente</strong> al finalizar cada período, al mismo precio vigente, hasta que los
-      canceles.
+      Los planes de suscripción (<strong>Pro Mensual</strong> y <strong>Pro Anual</strong>)
+      <strong>se renuevan automáticamente</strong> al finalizar cada período, al mismo precio
+      vigente, hasta que los canceles. El plan <strong>Flash de 72 horas NO se renueva</strong>:
+      es un pago único que vence automáticamente al cumplirse las 72 horas.
     </p>
     <ul>
-      <li><strong>Aviso previo:</strong> recibirás un correo electrónico de recordatorio al
-        menos <strong>7 días antes</strong> de cada renovación.</li>
-      <li><strong>Cómo cancelar:</strong> desde el <strong>portal de cliente de Paddle</strong>
+      <li><strong>Aviso previo:</strong> recibirás un correo electrónico de recordatorio al menos
+        <strong>7 días antes</strong> de cada renovación de suscripción.</li>
+      <li><strong>Cómo cancelar:</strong> desde el <strong>portal de cliente de Lemon Squeezy</strong>
         (enlace incluido en el correo de confirmación de compra) o escribiendo a
         <a href="mailto:keynertatis@gmail.com">keynertatis@gmail.com</a>. La cancelación es
         efectiva de inmediato; conservas el acceso Pro hasta la fecha de vencimiento del período
@@ -815,7 +846,7 @@
   <!-- ═══════════════════════════════════════════════════════════════════ -->
   <div class="seccion" id="reembolsos">
     <h1>Política de Reembolsos</h1>
-    <p class="meta">Versión 1.2 · Vigente desde el 1 de julio de 2026</p>
+    <p class="meta">Versión 1.4 · Vigente desde el 1 de julio de 2026</p>
 
     <div class="caja">
       <strong>Resumen rápido:</strong> Planes de suscripción → reembolso completo dentro de
@@ -861,10 +892,10 @@
       <li>Asunto: <strong>"Solicitud de reembolso — BrainMemora"</strong></li>
       <li>El correo electrónico con el que te registraste.</li>
       <li>La fecha aproximada de la compra.</li>
-      <li>El plan adquirido (Mensual, Trimestral, Semestral o Anual).</li>
+      <li>El plan adquirido (Pro Mensual o Pro Anual).</li>
     </ul>
     <p>
-      Procesaremos el reembolso a través de Paddle en un plazo máximo de
+      Procesaremos el reembolso a través de Lemon Squeezy en un plazo máximo de
       <strong>10 días hábiles</strong> desde la recepción de tu solicitud. El tiempo de
       acreditación en tu tarjeta o cuenta depende de tu entidad bancaria (habitualmente entre
       3 y 10 días hábiles adicionales). Recibirás confirmación por correo cuando el reembolso
@@ -891,10 +922,10 @@
       Escríbenos y analizaremos cada caso individualmente.
     </div>
 
-    <h2>2. Plan Flash 48 horas ($2.99) — Acceso puntual</h2>
+    <h2>2. Plan Flash 72 horas ($3.99) — Acceso puntual</h2>
     <p>
       El Plan Flash es un acceso único, puntual y <strong>sin renovación automática</strong>
-      de 48 horas al plan Pro. Por su naturaleza de corta duración, aplican condiciones
+      de 72 horas al plan Pro. Por su naturaleza de corta duración, aplican condiciones
       especiales:
     </p>
 
@@ -925,7 +956,7 @@
     <p>
       Una vez iniciada al menos una sesión con el Plan Flash activo,
       <strong>no se emiten reembolsos</strong>. Este proceso de consentimiento es gestionado
-      por Paddle en el flujo de pago.
+      por Lemon Squeezy en el flujo de pago.
     </p>
 
     <h2>3. Renovaciones automáticas cobradas sin aviso previo</h2>
@@ -939,16 +970,16 @@
 
     <h2>4. Cargos no reconocidos y fraude</h2>
     <p>
-      Si ves un cargo de BrainMemora/Paddle que no reconoces, te recomendamos seguir este
+      Si ves un cargo de BrainMemora/Lemon Squeezy que no reconoces, te recomendamos seguir este
       orden:
     </p>
     <ul>
       <li><strong>Paso 1 — Contáctanos:</strong> escríbenos a
         <a href="mailto:keynertatis@gmail.com">keynertatis@gmail.com</a>. Resolvemos la
         mayoría de los casos en 2 días hábiles.</li>
-      <li><strong>Paso 2 — Contacta a Paddle:</strong> si no hay respuesta en 5 días hábiles,
-        contacta a Paddle en
-        <a href="https://www.paddle.com/help/buyers" target="_blank" rel="noopener">paddle.com/help/buyers</a>. Como
+      <li><strong>Paso 2 — Contacta a Lemon Squeezy:</strong> si no hay respuesta en 5 días hábiles,
+        contacta a Lemon Squeezy mediante el enlace de soporte incluido en tu correo de compra o en
+        <a href="https://www.lemonsqueezy.com" target="_blank" rel="noopener">lemonsqueezy.com</a>. Como
         Merchant of Record, pueden verificar y reembolsar directamente.</li>
       <li><strong>Paso 3 — Disputa bancaria:</strong> puedes iniciar un contracargo con tu
         banco. Cooperaremos con tu entidad para resolver la disputa a tu favor si el cargo no
@@ -959,7 +990,7 @@
     <p>
       Si BrainMemora experimenta una interrupción total del servicio superior a
       <strong>72 horas continuas</strong> por causas atribuibles a BrainMemora (no a terceros
-      como Anthropic, Supabase o interrupciones de internet), los usuarios con plan de pago
+      como Google, Supabase o interrupciones de internet), los usuarios con plan de pago
       activo durante ese período podrán solicitar, a su elección:
     </p>
     <ul>
@@ -989,8 +1020,8 @@
       <li><strong>Argentina:</strong> DNDC — Dirección Nacional de Defensa del Consumidor</li>
     </ul>
     <p>
-      También puedes contactar a <strong>Paddle</strong> directamente en
-      <a href="https://www.paddle.com/legal/buyer-terms" target="_blank" rel="noopener">paddle.com/legal/buyer-terms</a>,
+      También puedes contactar a <strong>Lemon Squeezy</strong> directamente en
+      <a href="https://www.lemonsqueezy.com/terms" target="_blank" rel="noopener">lemonsqueezy.com/terms</a>,
       ya que como Merchant of Record son responsables directos ante tu entidad bancaria.
     </p>
 
@@ -1011,9 +1042,9 @@
   <a href="mailto:keynertatis@gmail.com">keynertatis@gmail.com</a>
   <br /><br />
   <small>
-    Política de Privacidad v1.2 · Términos de Servicio v1.2 · Política de Reembolsos v1.2<br />
+    Política de Privacidad v1.4 · Términos de Servicio v1.4 · Política de Reembolsos v1.4<br />
     Vigentes desde el 1 de julio de 2026 · Idioma oficial: español<br />
-    Procesador de pagos: Paddle.com Market Ltd. (Merchant of Record)
+    Procesador de pagos: Lemon Squeezy, LLC (Merchant of Record)
   </small>
 </footer>
 

@@ -7,23 +7,7 @@
   <meta id="meta-desc" name="description" content="Una extensión de Chrome que convierte tu lectura pasiva en aprendizaje activo, basada en la evidencia: recuperación, repetición espaciada y Feynman. Para navegadores de escritorio." />
   <meta property="og:title" content="BrainMemora — Convierte esta página o tus PDFs en una sesión de estudio." />
   <meta property="og:description" content="Viaja por una red neuronal viva. La extensión que aplica la ciencia del aprendizaje a tu estudio." />
-  <!-- Meta Pixel Code -->
-  <script>
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', '1414912690458953');
-  fbq('track', 'PageView');
-  </script>
-  <noscript><img height="1" width="1" style="display:none"
-  src="https://www.facebook.com/tr?id=1414912690458953&ev=PageView&noscript=1"
-  /></noscript>
-  <!-- End Meta Pixel Code -->
+  <!-- Meta Pixel: se carga con CONSENTIMIENTO (ver banner al final del <body>). No dispara solo. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -894,6 +878,54 @@
     var browser = (navigator.language || 'es').slice(0, 2).toLowerCase();
     var init = TEXTOS[saved] ? saved : (TEXTOS[browser] ? browser : 'es');
     setLang(init);
+  })();
+  </script>
+
+  <!-- Consentimiento de cookies + Meta Pixel: el pixel SOLO se dispara si el usuario acepta. -->
+  <script>
+  (function () {
+    var KEY = 'bm_consent';
+    function cargarPixel() {
+      if (window._bmPixel) return; window._bmPixel = true;
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init','1414912690458953'); fbq('track','PageView');
+    }
+    var prev = null; try { prev = localStorage.getItem(KEY); } catch (e) {}
+    if (prev === 'yes') { cargarPixel(); return; }
+    if (prev === 'no') { return; }
+    var l = (navigator.language || 'es').toLowerCase();
+    var es = l.indexOf('es') === 0 || l.indexOf('pt') === 0;
+    var txt = es ? 'Usamos cookies y el Pixel de Meta para medir y mejorar nuestra publicidad. Puedes aceptar o rechazar.'
+                 : 'We use cookies and the Meta Pixel to measure and improve our advertising. You can accept or decline.';
+    var ok = es ? 'Aceptar' : 'Accept', no = es ? 'Rechazar' : 'Decline', mas = es ? 'Más info' : 'Learn more';
+    function guardar(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
+    function mostrar() {
+      var bar = document.createElement('div');
+      bar.setAttribute('role', 'dialog');
+      bar.setAttribute('aria-label', es ? 'Consentimiento de cookies' : 'Cookie consent');
+      bar.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;max-width:720px;margin:0 auto;background:#0D0D14;color:#F3F2F7;border:1px solid rgba(139,92,246,.4);border-radius:14px;padding:14px 16px;font-family:system-ui,-apple-system,sans-serif;font-size:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;';
+      var p = document.createElement('span');
+      p.style.cssText = 'flex:1 1 260px;line-height:1.45;';
+      p.appendChild(document.createTextNode(txt + ' '));
+      var a = document.createElement('a');
+      a.href = 'legal/privacidad.html#privacidad'; a.target = '_blank'; a.rel = 'noopener';
+      a.textContent = mas; a.style.cssText = 'color:#B79CFF;text-decoration:underline;white-space:nowrap;';
+      p.appendChild(a);
+      var cont = document.createElement('div'); cont.style.cssText = 'display:flex;gap:8px;flex:0 0 auto;';
+      var bNo = document.createElement('button');
+      bNo.type = 'button'; bNo.textContent = no;
+      bNo.style.cssText = 'padding:9px 15px;border-radius:9px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#A6A4B4;cursor:pointer;font-size:14px;';
+      bNo.onclick = function () { guardar('no'); bar.remove(); };
+      var bOk = document.createElement('button');
+      bOk.type = 'button'; bOk.textContent = ok;
+      bOk.style.cssText = 'padding:9px 18px;border-radius:9px;border:none;background:#8B5CF6;color:#fff;cursor:pointer;font-weight:600;font-size:14px;';
+      bOk.onclick = function () { guardar('yes'); bar.remove(); cargarPixel(); };
+      cont.appendChild(bNo); cont.appendChild(bOk);
+      bar.appendChild(p); bar.appendChild(cont);
+      document.body.appendChild(bar);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mostrar);
+    else mostrar();
   })();
   </script>
 </body>
